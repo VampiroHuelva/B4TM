@@ -1,0 +1,11 @@
+ 
+# Prediction for the 57 unlabelled samples. 
+
+[1] HR+        HER2+      HER2+      HER2+      Triple Neg HER2+      HR+        HR+        HR+        HER2+      HER2+     
+[12] Triple Neg HR+        HR+        HR+        HER2+      HR+        HR+        HR+        HER2+      HR+        HER2+     
+[23] HER2+      HR+        HR+        HER2+      HER2+      HR+        HR+        Triple Neg HR+        Triple Neg Triple Neg
+[34] Triple Neg HR+        HER2+      HR+        HER2+      HER2+      HR+        HER2+      HER2+      HR+        HR+       
+[45] HER2+      HER2+      HR+        HER2+      HR+        HER2+      HR+        HR+        Triple Neg Triple Neg HR+       
+[56] HER2+      Triple Neg
+
+

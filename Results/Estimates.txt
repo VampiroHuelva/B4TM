@@ -1,0 +1,70 @@
+### ACCURACY ####
+ 
+ The final predictor preforms on a 5 fold cross validation set as follows:
+ 
+ print(roc_average) (the 5 folds cross validations)
+ [1] 0.9285714 0.9583333 0.9523810 0.8968254 0.8115079
+> print(mean(roc_average))
+[1] 0.9095238
+ 
+This cross validation shows an accuracy of 90% on average. We expect to do a little less since we based our feature selection on labeled data (part of it, not all). confusion Matrices show that not in all cases one class get full correct prediction.we saw this also back in a 10 fold cross validation scheme. For completeness the data is given below from the output of the file: final_model.r
+ 
+ 		Reference
+Prediction   HER2+ HR+ Triple Neg
+  HER2+          6   0          0
+  HR+            0   4          3
+  Triple Neg     0   0          6
+
+$overall
+      Accuracy          Kappa  AccuracyLower  AccuracyUpper   AccuracyNull AccuracyPValue  McnemarPValue 
+   0.842105263    0.765432099    0.604215449    0.966173751    0.473684211    0.001066824            NaN 
+
+Multi-class area under the curve: 0.9286
+$table
+            Reference
+Prediction   HER2+ HR+ Triple Neg
+  HER2+          7   0          0
+  HR+            1   7          0
+  Triple Neg     0   1          6
+
+$overall
+      Accuracy          Kappa  AccuracyLower  AccuracyUpper   AccuracyNull AccuracyPValue  McnemarPValue 
+  9.090909e-01   8.633540e-01   7.083873e-01   9.887944e-01   3.636364e-01   1.614228e-07            NaN 
+
+Multi-class area under the curve: 0.9583
+$table
+            Reference
+Prediction   HER2+ HR+ Triple Neg
+  HER2+          7   0          0
+  HR+            0   6          1
+  Triple Neg     0   1          6
+
+$overall
+      Accuracy          Kappa  AccuracyLower  AccuracyUpper   AccuracyNull AccuracyPValue  McnemarPValue 
+  9.047619e-01   8.571429e-01   6.962256e-01   9.882507e-01   3.333333e-01   8.441398e-08            NaN 
+
+Multi-class area under the curve: 0.9524
+$table
+            Reference
+Prediction   HER2+ HR+ Triple Neg
+  HER2+          6   0          0
+  HR+            0   5          2
+  Triple Neg     0   2          4
+
+$overall
+      Accuracy          Kappa  AccuracyLower  AccuracyUpper   AccuracyNull AccuracyPValue  McnemarPValue 
+  0.7894736842   0.6833333333   0.5443469181   0.9394754623   0.3684210526   0.0002240838            NaN 
+
+Multi-class area under the curve: 0.8968
+$table
+            Reference
+Prediction   HER2+ HR+ Triple Neg
+  HER2+          5   0          1
+  HR+            1   6          0
+  Triple Neg     0   3          3
+
+$overall
+      Accuracy          Kappa  AccuracyLower  AccuracyUpper   AccuracyNull AccuracyPValue  McnemarPValue 
+    0.73684211     0.60084034     0.48797065     0.90853422     0.47368421     0.01854617     0.17179714 
+
+Multi-class area under the curve: 0.8115

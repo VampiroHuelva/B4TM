@@ -1,0 +1,347 @@
+\documentclass[a4paper]{article}
+%\usepackage{bchart}
+\usepackage[english]{babel}
+\usepackage[utf8x]{inputenc}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage[colorinlistoftodos]{todonotes}
+\usepackage{hyperref}
+\usetikzlibrary{calc}
+\usepackage{relsize}
+\usepackage[T1]{fontenc}
+\usepackage{tikz}
+% \usepackage{fullpage}
+\usepackage{a4wide}
+\usepackage{amsmath,amssymb,amsthm,enumitem}
+\usepackage{eurosym}
+\usepackage{amsfonts}
+\usepackage{float}
+\usepackage{listings}
+\usepackage[toc,page]{appendix}
+\usepackage{subfig}
+\usepackage{wrapfig}
+\usepackage[nomargin,inline,marginclue,draft]{fixme}
+\usepackage{pdfpages}
+\usepackage{url}
+\usepackage{tabu}
+\usepackage{multirow}
+\usepackage{colortbl}
+\usepackage{color}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+\usepackage{tikz}
+\usetikzlibrary{automata,arrows,positioning,calc}
+
+\makeatletter
+\def\BState{\State\hskip-\ALG@thistlm}
+\makeatother
+
+% Default fixed font does not support bold face
+\DeclareFixedFont{\ttb}{T1}{txtt}{bx}{n}{12} % for bold
+\DeclareFixedFont{\ttm}{T1}{txtt}{m}{n}{12}  % for normal
+
+% Custom colors
+\usepackage{color}
+\definecolor{deepblue}{rgb}{0,0,0.5}
+\definecolor{deepred}{rgb}{0.6,0,0}
+\definecolor{deepgreen}{rgb}{0,0.5,0}
+
+\hypersetup{ colorlinks,
+linkcolor=black,
+filecolor=blue,
+urlcolor=blue,
+citecolor=blue }
+
+% Python style for highlighting
+\newcommand\pythonstyle{\lstset{
+language=Python,
+basicstyle=\ttm,
+otherkeywords={self},             % Add keywords here
+keywordstyle=\ttb\color{deepblue},
+emph={MyClass,__init__},          % Custom highlighting
+emphstyle=\ttb\color{deepred},    % Custom highlighting style
+stringstyle=\color{deepgreen},
+frame=tb,                         % Any extra options here
+showstringspaces=false            % 
+}}
+
+
+% Python environment
+\lstnewenvironment{python}[1][]
+{
+\pythonstyle
+\lstset{#1}
+}
+{}
+
+% Python for external files
+\newcommand\pythonexternal[2][]{{
+\pythonstyle
+\lstinputlisting[#1]{#2}}}
+
+% Python for inline
+\newcommand\pythoninline[1]{{\pythonstyle\lstinline!#1!}}
+\usepackage{titling}
+%\usepackage{natbib}
+\setlength{\droptitle}{-12em}
+\author{\vspace{-4ex}}
+\date{\vspace{-5ex}}
+\title{Bioinformatics for translation in medicine: Treatment selection by classification.}
+
+\author{Alberto Gil, Daan Bijkerk(2061341)}
+\date{\today}
+\begin{document}
+\maketitle
+% Contents of paper (5-6 pages A4)
+%\newpage
+\begin{abstract}
+
+
+\textbf{\textit{For a growing number of cancers a personalized medicine has proven to be beneficial for the effectiveness of the treatment(diagnosis). A new challenge to differentiate between classifications of cancers by machine learning methods on obtained data for instance by array-CGH has therefore been investigated these last few years. Even tho data is becoming less sparse by the many new treatments and studies, typical data consist of a large number of variables of just a few samples, which makes the classification task by using machine learning methods not trivial. In this paper we obtain a classification of three clinical labels: HER2 positive (HER2+), Triple negative (TN): ER-, PR- and HER2- Hormone receptor positive (HR+): ER+ and/or PR+, and HER2- on the hand of data from a breast cancer tumors array-CGH. Methods are put in perspective by preforming multiple classifications schemes with the use of different machine learning algorithms.\\}}\\ 
+keywords: biomarkers, measurability, data sources, Array-CGH, personalised medicine, translational medicine, Machine learning, classification, dimensionality, logistic regression, svm, Kaplan Meijer curve% 120 words so far
+\end{abstract}
+% abstract (max 200 words), sections:
+% ○
+% Motivation
+% ○
+% Results & impact
+
+\begin{figure}[H]
+\begin{center}
+ \includegraphics[width=1\textwidth]{993px-Array-CGH_protocol_svg.png}
+    \caption{Array-CGH protocol\cite{phil}}
+   \label{front}
+\end{center}
+\end{figure}
+
+Files that are used:\url{link} 
+
+% ●
+% Tables & Figures
+% ○
+% around 3-6 (in total) Figures and Tables
+% ○
+% Make sure to explain all axes, labels, lines points, in the caption of your table / figure
+% ○
+% Make sure to refer to each table / figure in the main text, and explain in the main text
+% what can be seen from the figure
+
+
+\newpage
+
+\section{Introduction}
+% ●
+% introduction
+% ○
+% Include references to other papers
+% ○
+% explain background of the data set (both experimental & preprocessing)
+%   -------- PREPROCESSING-------
+% Preprocesing approaches <- Van de Wiel(2011)
+% CBS <- ADAM B. OLSHEN, E. S. VENKATRAMAN(2004). Bioinformatics Oxford Academics. " Circular binary segmentation for the analysis of array‐based DNA copy number data"
+%CBS <-E. S. Venkatraman(2007)."A faster circular binary segmentation algorithm for the analysis of array CGH data"
+%Callings
+
+% Experimental  background of the data set?
+% explain context (medical) of the research
+
+%Personalized medicine in tumor tratment <- PAPER
+
+% Medical context of the research
+
+Translational medicine is an interdisciplinary branch of the biomedical science, which aim to take advantage of the sources and tools developed by the last researches, and apply to deep understanding, diagnosis and treatment of real patients cases.  This connection is crucial to face the new challenges arising from personalized medicine perspective. Medicine so far as focused in classifying, describe an treat the illness of patients, searching for the most generically way to fight diseases in society. However, new measure technologies allow us to deal with this problem in a more complex manner and make profit of all the information that can be  extracted for each patient to treat him in a more personalized way. Cancer diseases investigation are the gold target of this new rising field. 
+
+Could be said,unequivocally, that each tumor is a different disease, since each one come from a different combination of mutations in a different environment. Having genomic measure techniques with great accuracy, tumors are starting to be understood in its real complexity.  In this sense, we aim to find patterns in the genes that allow us to  popper classify the different subtypes of the cancer.
+
+% Maybe also including the the important and incidence of breast cancer nowadays
+
+
+The analysis performed in this paper is based in a breast cancer database obtained via array CGH technology.(BREAST CANCER HIGHLIGHTS). Breast cancer is the cancer with the highest incidence in woman, so it has been broadly studied .We use the receptor status classification of the  breast cancer:  Estrogen  Receptor (ER), Progesterone Receptor (PR) and Human Epidermal growth factor Receptor 2 (HER2), for which after removal of the cancer were tested for presence. From these receptors the following subtypes are derived: (1) HER2 positive: HER2+ (2) Triple negative (TN): ER-, PR- and HER2- (3) Hormone receptor positive (HR+): ER+ and/or PR+, and HER2-. For these three subtypes different treatments are available making a good classification on the hand of Array-CGH data crucial.
+
+For testing the mutated DNA in the breast cancer patient, array CGH technology is used. This molecular cytogenetic method analyses copy number variations(CNVs) in the DNA of a test sample compared to a reference sample. Each sample is labeled with a different  fluorence molecule(Cy5 for test sample and Cy3 for reference sample) and combined in equal amount of DNA fro hybridization. 
+
+% Preprocesing
+Raw data consist in a table with the different intensities(numeric) of the different regions of the genome(244.000 probes per array) for all the patient(100 breast cancer samples). This intensities were obtained via scanning the different levels of intensities(luminance) and using a software that assign values to this intensities<Paper>. Pre-proccesing start with the application of a circular binary segmentation(CBS), dividing the measurements in to segments with similar log2-ratios<Paper>. This is done along with a "calling" process for a properly discretization of the data. In the calling processes these log-2 ratios are discretized to three defined states, termed loss, gain or amplification(-1,0,1 and 2 respectively)<paper>. Due to disproportionate large number of features in comparison with samples, a dimension reduction step is highly recommended and ,in this case,  included in pre-process<Paper>.
+Consist on a feature reduction by determining sequences of clones which for every sample are (almost) constant within the sample, so eliminating them will not cause loss of information.
+(Note that this dimension reduction step can be done in different levels on the pre-processing, also termed filtering)
+
+
+
+(<The pathology department of the hospital uses technique A,B, or C ...\todo{explain background of the data set experimental \& preprocessing} The obtained data forces machine learning methods to only pick up the signal which affect classification (without wighting the possible across platform bias in the data). \todo{explain background of the data set (preprocessing)(The pre-processing of the data has been done for you.)}
+advantages measuring DNA over RNA, explain context (medical) of the research,>)
+\\   
+
+The main challenge of using sparse data is to obtain the features that generalize well across different datasets (by not over-fitting the data) and still predict reasonably well. It is know that stability of a so called profile (a feature set to train on) gives large problem to use classifiers on different datasets obtained from different experiments as well on a different selection of samples withing the same dataset.\todo{cite} The feature selection method seems to have a significant influence on the accuracy, stability and interpret-ability of signatures.\cite{haury} About feature selection from the same source: "Ensemble feature selection, i.e., combining multiple signatures estimated on random subsamples, has generally no positive impact, and that simple filters can outperform more complex wrapper or embedded methods." and therefore should for every new problem be well executed.\\ 
+
+% ○
+% set out the research question you are trying to answer in this paper
+								
+
+The feature selection could also give a meaningful explanation of the underlaying biological process related to the particular cancer subgroup in question. \todo{add example from literature: selected features show... I think the above mentioned paper says also something about this subject.} Because of this we examined feature selection possibilities that take in account the to predicted new samples. We use the classifier KNN to place the new sample to be predicted in there most `similar' group obtained by unsupervised learning and than use the classifier that was built for this group to do the actual prediction. We therefore ask ourself if it is beneficial to classify the new sample first (unsupervised) to select one or more (majority vote) hopefully more specific pre-trained classifier(s). A feature selection was preformed with unsupervised learning to created multiple models for different groups and for the whole group to compare the two methods. 
+
+% \begin{quote}
+% We observe that the feature selection method has a
+% significant influence on the accuracy, stability and interpretability of signatures.\\
+
+% Surprisingly,we find that ensemble feature selection, i.e., combining multiple signatures estimated on random subsamples, has generally no positive impact, and that simple filters can outperform more complex wrapper or embedded methods\\
+
+% filter methods: select subsets of variables as a pre-processing step, independently of the chosen predictor; wrapper methods: utilize the learning machine of interest as a black box to score subsets of variable according to their predictive power; finally, embedded methods: perform variable selection in the process of training and are usually specific to given learning machines.\\
+
+% \emph{Filter}: Student’s t-test, Wilcoxon sum-rank test, Bhattacharyya distance, relative entropy. \emph{Wrapper}: SVM recursive feature elimination (RFE) and Greedy Forward Selection (GFS). \emph{Embedded}: Lasso regression and elastic net\\
+
+% We observe that among the other methods, only elastic
+% net, Lasso and t-test clearly seem to outperform random in terms of accuracy, and only t-test outperforms it in terms of stability. Overall, t-test gives both the best performance and the best stability. The fact that the Lasso is not stable is not surprising since, like most multivariate methods, it tries to avoid redundant genes in a signature and should therefore not be stable in data where typically many genes encode for functionally related proteins.\\
+
+% Overall we observed that ensemble method which select
+% features by aggregating signatures estimated on different bootstrap samples increased the stability of some methods in some cases, but did not clearly improve the best methods.\\
+% \end{quote}\emph{Feature Selection Methods for Molecular Signatures, Haury et al}\cite{haury}
+% Side node: they tested linear and very basic models which might influence the prefer-ability of using a certain feature selection method.
+
+\newpage
+
+\section{Methods}
+
+% ●
+% methods section
+% ○
+% Explain which methods you have used to build your classifier
+% ○
+% Explain how you have cross-validated your data
+
+% CORElearn,  RWeka and caret. You need to refer to the official documentation for usage. You are  required to save your trained classifier into a file by sing saveRDS ’link:\url{https://stat.ethz.ch/R-manual/R-devel/library/base/html/readRDS.html}. Thismodel file (*.rds)  together with R script needs to be submitted. 
+
+Possible steps to take: (explain brief the steps, mayeb flow diagram)
+
+\begin{itemize}
+\item Data purification, transformation, if necessary.
+\item Feature selection, if necessary
+\item Choose machine learning methods (classifiers).
+\item Train and validate the classifiers.
+\end{itemize}
+
+\subsection{Feature selection}
+
+Unsupervised learning (clustering, PCA \& auto-encoders: discover interesting features.). Not minimize the cost error but the total weights: so typically the strong ones will stay and less important ones become small.
+
+\paragraph{For multiple models}
+
+\paragraph{For one model}
+
+\paragraph{cross-validation for feature selection}
+
+(over fitting)
+
+\paragraph{cross-validation for building model}
+
+(over fitting)
+
+
+\section{Results}
+% ●
+% results
+% ○
+% Explain how well your classifier performs, based on your own benchmarking
+% ○
+% You may compare multiple classifier approaches, or multiple feature selection
+% methods.
+% ○
+% If you were to mark a single region (biomarker) for classification, what would it be, and
+% how well would you do?
+
+roc-plots,...\\
+used classifiers: neural network, svm, random forrest, gbm and ... in one figure
+
+
+\section{Discussion \& Conclusion}
+% ●
+% discussion + conclusion
+% ○
+% Discuss any issues that may affect the results
+% ○
+% Discuss the single best region you found (see above)
+% ○
+% Clearly state what research question you have answered in this paper
+% ○
+% Explain what impact your research has on future research
+
+The one model classifier did better but possibly might resulted in different conclusion if was preformed on different dataset (more homogeneous.\\
+
+The use of our method ables us to combine different datasets from different experiments to use mode data but don't lose generality. (maybe we need to make data from different datasets more similar?? to overcome this really)
+
+% \begin{table}[H]
+% \centering
+% \caption{Parameters and their used values briefly explained.}
+% \label{settings}
+% \scalebox{1}{
+% \begin{tabular}{|l|l|l|l|l|l|l|l|l|l|l|l|l|l|l|}
+% \hline
+% parameter & to consider & settings\\ \hline \hline 
+% hidden layers& overfitting, computation time, complexity & 1 \\ \hline
+% features & complexity & frame size, one type, and frame \\ \hline
+% nodes per layer & overfitting, computation time, complexity & 1-60 \\ \hline
+% max iterations & overfitting & 1e+0.5 \\ \hline
+% algorithm & convergence behavior \& speed & "bprop+" \\ \hline
+% learning rate & convergence behavior \& speed & 0.01  \\ \hline
+% threshold & overfitting \& computational time & 0.5,0.05,0.02  \\ \hline
+% \end{tabular}}
+% \end{table}
+
+
+%\begin{figure}[H]
+%\begin{center}
+ %\includegraphics[width=.5\textwidth]{ROC.png}
+  %  \caption{ROC plot with Positive Predictive Value}
+   %\label{roc}
+%\end{center}
+%\end{figure}
+
+%\begin{figure}[H]
+%\begin{center}
+% \includegraphics[width=.25\textwidth]{hidden1_6_11_21.png}
+% \includegraphics[width=.27\textwidth]{hidden1_6_11_21_M.png}
+%    \caption{ROC plots: left the average of the ROC-plots and right plots for every model on every crosvalidation set.}
+%   \label{roc}
+%\end{center}
+%\end{figure}%
+
+
+%\begin{wrapfigure}{r}{0.5\textwidth}
+%\begin{center}
+%\includegraphics[width=.51\textwidth]{flow.png}
+%     \caption{Flowchart which capture the tools used with every step taken. First a Blast run give rise to multiple sequences which get aligned by the 4 tools named. Afterwards these get compared using different methods.}
+%    \label{flow}
+% \end{center}
+% \end{wrapfigure}
+\newpage
+\bibliographystyle{plainnat}
+
+\begin{thebibliography}{some}
+
+\addcontentsline{toc}{chapter}{Bibliography} 
+
+\bibitem{haury}
+Anne-Claire Haury, Pierre Gestraud, Jean-Philippe Vert, \emph{The Influence of Feature Selection Methods on Accuracy,
+Stability and Interpretability of Molecular Signatures}, Plos-One, 2011
+
+\bibitem{phil}
+Philippe Hup\'e - Emmanuel Barillot, Laurence Calzone, Philippe Hup\'e, Jean-Philippe Vert, Andrei Zinovyev, \emph{Computational Systems Biology of Cancer}, Chapman \& Hall/CRC Mathematical \& Computational Biology, 2012
+
+\bibitem{R}
+\textsf{R} \url{https://www.r-project.org/},
+\emph{The R Project for Statistical Computing}
+
+\bibitem{nn}
+Neuralnet \url{https://cran.r-project.org/web/packages/neuralnet/index.html},
+\emph{Training of Neural Networks}
+
+\bibitem{gun} 
+Frauke G\"unther, Stefan Fritsch, \emph{neuralnet: Training of Neural Networks}, The R Journal Vol. 2/1, June 2010, ISSN 2073-4859 
+
+\bibitem{rms}
+rms, \url{https://cran.r-project.org/web/packages/rms/rms.pdf},
+\emph{Regression Modeling Strategies}
+
+\end{thebibliography}
+
+\end{document}
+
