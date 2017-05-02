@@ -1,5 +1,4 @@
 rm(list=ls())
-setwd("C:/Users/b_daa/Desktop/B4TM")
 
 library(splines)
 library(parallel)
@@ -46,11 +45,28 @@ loops = 5
 
 classes = c('HER2+',"HR+",'Triple Neg')
 
-# group data by class
-combine$Subgroup[combine$Subgroup == classes[1]] <- classes[2]
 
+# Make 3 sets all with two classes (one class against not this one class)
+twoclasses = function(x) {
+  
+  HER2_VS_rest = x
+  HR = x
+  Triple = x
+  
+  HER2$Subgroup[HER2_VS_rest$Subgroup == classes[2]] <- "NOHER2+"
+  HER2$Subgroup[HER2_VS_rest$Subgroup == classes[3]] <- "NOHER2+"
+  
+  HR$Subgroup[HR$Subgroup == classes[1]] <- "NOHR+"
+  HR$Subgroup[HR$Subgroup == classes[3]] <- "NOHR+"
+  
+  Triple$Subgroup[Triple$Subgroup == classes[1]] <- "NOTriple Neg"
+  Triple$Subgroup[Triple$Subgroup == classes[2]] <- "NOTriple Neg"
+  
+  return(list(HER2,HR,Triple))
+}
 
-
+  
+  
 
 
 HER2plus <-combine[combine$Subgroup=="HER2+",]
