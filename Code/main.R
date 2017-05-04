@@ -149,7 +149,8 @@ for (i in 1:length(models)) {
 
 ##################### NOW we can compare the models with different feature selection ###################
 
-for (i in 1:4) {
+# plot rocplots of all models
+for (i in 1:length(trained_models)) {
     r = c()
     print(confusionMatrix(real[i], pred[i])[2:3])
     x = as.numeric(sets[[i]][[1]][[j]][[2]][,1])
