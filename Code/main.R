@@ -1,4 +1,5 @@
 #######################################################################################
+########################################################################################
 ###
 ### Script to select, make and train a model for the classification of different
 ### cancer types. First the data is read in to perform a data inspection.... TODO FINISH  
@@ -10,13 +11,7 @@
 ###
 ###
 ########################################################################################
-
-# In this script we do a comples analysis of the data with a simple feature
-# selection and adding a vector with a vector selection used in weka.
-# Algorithm used will be on the report. We use this script to first select
-# the number of features is optimus for each algorithm, and then select the best algorithm
-
-### TODO the above needs to be more clear 
+########################################################################################
 
 # clear environment and load source file
 rm(list = ls())
@@ -31,7 +26,9 @@ library(lattice); library(energy); library(RWeka);
 combine = Load_labeled_Data()
 #write.arff(combine, file = "combine.arff")
 
+
 ################################## FEATURE SELECTION ####################################
+
 
 # Feature selection by importance ()
 features = filter_Var_selection()
@@ -49,10 +46,13 @@ filtering <- c("V312","V673","V696","V773","V1570","V1657","V2185","V25932","V26
 Huge_combination <- c(J48_previous, CorrelationAttribute[1:25], filtering, features[1:20])
 Huge_Unic <- unique(Huge_combination)
 
+
 ############################### GENERATING TEST/TRAIN SETS ###############################
 
+
 # create simple cross validation sets (works only with 3 classes)
-simple_cross_sets = crossval_sets(combine, crossval = 5) 
+crossval = 10
+simple_cross_sets = crossval_sets(combine, crossval) 
 
 # create double cross validation sets
 dcrosssets = double_crossval_datasets(combine, crossval=5, loops = 5)
@@ -70,45 +70,12 @@ Triple = make_equal_sets(two_class_data[[3]])
 ## model selection (store the settings for models to train with)##
 models = c("nnet", "rf", "gbm", "glm")
 
-### (TODO specify above the proper settings for every trained model)
-
 # make list for storing the trained models
 trained_models <- vector("list",4)
 
-## TRAIN without double loop featureselection
-for (i in 1:length(models)) {
-  # TODO specify for each model certain properties (number of features for instance)
-  
-  # the below SHOULD actually be a double loop (feature selection on each crossval train/test set)
-  for (j in 1:feature_selection) {
-    
-    # do feature selection[j] (TODO)
-    features = Huge_Unic[1:12]
-    
-    # set spefic settings for model
-    fitControl <- trainControl(## 10-fold CV
-      method = "repeatedcv",
-      number = 10,
-      ## repeated ten times
-      repeats = 10) 
-    
-    # makeformula 
-    formula_model = paste(features, collapse=' + ')
-    formula_model = paste("Subgroup ~ ", model, collapse ='')
-    
-    ### TODO specify which data to use sets!!! and apply setttings for specific model
-    model <- train(eval(parse(text=model)), data = combine, method = models[i], trControl = fitControl, verbose = FALSE)
-    # save model
-  }
-}
-
-
-
 ## TRAIN: here i try the double loop crossval feature selection
-## DO THE FOLOWWING FOR ALL FEATURE SELECTION METHODS
 
-trained_models <- vector("list",4) 
-
+# DO THE FOLOWWING FOR ALL FEATURE SELECTION METHODS
 for (i in 1:length(models)) {
   # TODO specify for each model certain properties (number of features for instance)
   
