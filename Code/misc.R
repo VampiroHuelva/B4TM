@@ -153,7 +153,3 @@ make_equal_sets = function(x,class) {
   }
   return(result) 
 }
-
-
-
-
