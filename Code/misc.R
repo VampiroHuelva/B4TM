@@ -1,4 +1,8 @@
-## functions used in B4TM
+############################################################################################
+###
+### functions used in main.R
+###
+############################################################################################
 
 # load unlabeled data
 Load_Unlabeled_Data <- function(input){
@@ -21,6 +25,9 @@ Load_labeled_Data = function() {
   row.names(combine)<-combine$Row.name
   combine$Row.names<-NULL
   combine$Sample<-NULL
+  levels(combine$Subgroup)[1]<-'HER2Plus'
+  levels(combine$Subgroup)[2]<-'HRPlus'
+  levels(combine$Subgroup)[3]<-'TripleNeg'
   return(combine)
 }
 
@@ -36,9 +43,9 @@ filter_Var_selection = function() {
 double_crossval_datasets = function(combine, crossval, loops) {
   
   # group data by class
-  HER2plus <-combine[combine$Subgroup=="HER2+",]
-  HRplus <- combine[combine$Subgroup=="HR+",]
-  TrNeg <- combine[combine$Subgroup=="Triple Neg",]
+  HER2plus <-combine[combine$Subgroup=="HER2Plus",]
+  HRplus <- combine[combine$Subgroup=="HRPlus",]
+  TrNeg <- combine[combine$Subgroup=="TripleNeg",]
   
   cross <- function(x,n) split(x, factor(sort(rank(x)%%n)))
   
@@ -87,9 +94,9 @@ double_crossval_datasets = function(combine, crossval, loops) {
 # make train and test sets for double loop cross validation (werkt alleen met 3 classes)
 crossval_sets = function(combine, crossval) {
   # group data by class
-  HER2plus <-combine[combine$Subgroup=="HER2+",]
-  HRplus <- combine[combine$Subgroup=="HR+",]
-  TrNeg <- combine[combine$Subgroup=="Triple Neg",]
+  HER2plus <-combine[combine$Subgroup=="HER2Plus",]
+  HRplus <- combine[combine$Subgroup=="HRPlus",]
+  TrNeg <- combine[combine$Subgroup=="TripleNeg",]
   
   cross <- function(x,n) split(x, factor(sort(rank(x)%%n)))
   
@@ -125,16 +132,16 @@ crossval_sets = function(combine, crossval) {
 # Make 3 sets all with two classes
 twoclasses = function(x) {
   HER2 = x
-  levels(HER2$Subgroup)[2]<-"NOHER2+"
-  levels(HER2$Subgroup)[3]<-"NOHER2+"
+  levels(HER2$Subgroup)[2]<-"NOHER2Plus"
+  levels(HER2$Subgroup)[3]<-"NOHER2Plus"
   
   HR = x
-  levels(HR$Subgroup)[1]<-'NOHR+'
-  levels(HR$Subgroup)[3]<-'NOHR+'
+  levels(HR$Subgroup)[1]<-'NOHRPlus'
+  levels(HR$Subgroup)[3]<-'NOHRPlus'
   
   Triple = x
-  levels(Triple$Subgroup)[1]<-'NOTriple Neg'
-  levels(Triple$Subgroup)[2]<-'NOTriple Neg'
+  levels(Triple$Subgroup)[1]<-'NOTripleNeg'
+  levels(Triple$Subgroup)[2]<-'NOTripleNeg'
   sets <- list(HER2,HR,Triple)
   return(sets)
 }

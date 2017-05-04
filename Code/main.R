@@ -13,14 +13,15 @@
 ########################################################################################
 ########################################################################################
 
-# clear environment and load source file
+# clear environment and load source files
 rm(list = ls())
 source("code/misc.R")
+source("code/model_tuning.R")
 
 # Loading all the dependicies
 library(splines); library(parallel); library(survival); library(caret); library(mlbench)
 library(gbm); library(corrplot); library(pROC); library(FSelector); library(qtlcharts)
-library(lattice); library(energy); library(RWeka); 
+library(lattice); library(energy); library(RWeka); library(obliqueRF); library(stepPlr);
 
 # get the train data and write to WEKA file
 combine = Load_labeled_Data()
@@ -65,7 +66,21 @@ HER2 = make_equal_sets(two_class_data[[1]])
 HR = make_equal_sets(two_class_data[[2]])
 Triple = make_equal_sets(two_class_data[[3]])
 
+
 ############################## TRAINING MODELS ############################################
+
+
+## determine the best parameters for each model
+
+# see in source file model_tuning.R for link to documentation
+gbmFit = gbm_tuning(combine,features) 
+svmFit = svm_tuning(combine,features)
+nnetFit = nnet_tuning(combine,features)
+mrFit = mr_tuning(combine,features)
+rfFit = rf_tuning(combine,features)
+
+resamps <- resamples(list(GBM = gbmFit3, SVM = svmFit, NNET = nnetFit, MR = mrFit, RF = rfFit))
+summary(resamps)
 
 ## model selection (store the settings for models to train with)##
 models = c("nnet", "rf", "gbm", "glm")
@@ -132,6 +147,31 @@ for (i in 1:length(trained_models)) {
 ####################### NOW we should train 4 models with best features selected on cross val ###########
 
 # compare the 4 models with each other and do the final predictions (TODO)
+
+# EXAMPLE OFTWO MODELS (gbmFit3 settings used above)
+
+gbmFit3 <- train(Subgroup ~ ., data = combine, 
+                 method = "gbm", 
+                 trControl = fitControl, 
+                 verbose = FALSE, 
+                 tuneGrid = gbmGrid,
+                 ## Specify which metric to optimize
+                 metric = "ROC")
+
+features = Huge_Unic[1:12]
+formula_model = paste(features, collapse=' + ')
+formula_model = paste("Subgroup ~ ", formula_model, collapse ='')
+
+svmFit <- train(eval(parse(text=formula_model)), data = combine, 
+                method = "svmRadial", 
+                trControl = fitControl, 
+                preProc = c("center", "scale"),
+                tuneLength = 8,
+                metric = "ROC")
+svmFit
+resamps <- resamples(list(GBM = gbmFit3,SVM = svmFit))
+                     
+summary(resamps)
 
 #################################### DO THE FINAL PREDICTIONS ####################################
 
