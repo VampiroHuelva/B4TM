@@ -45,7 +45,7 @@ options <- getopt(option_specification);
 
 # suggested steps
 # Run the script with the function for loading the data
-source("LoadData.R")
+source("misc.R")
 # Step 1: load unlabeled data with Load_Unlabeled_Data() function from Building_Final_mode.R script
 Unlabelled_data <- Load_Unlabeled_Data(options$input)
 
