@@ -17,6 +17,7 @@
 rm(list = ls())
 source("code/misc.R")
 source("code/model_tuning.R")
+source("code/feature_selection.R")
 
 # Loading all the dependicies
 library(splines); library(parallel); library(survival); library(caret); library(mlbench)
@@ -33,6 +34,9 @@ combine = Load_labeled_Data()
 
 # Feature selection by importance ()
 features = filter_Var_selection()
+
+# use rfe featureselection (not returningfeatures still)
+features_rfe = feature_selection_rfe(combine)
 
 # Advance feature selction using WEKA. Algorithm used describe in the report
 CorrelationAttribute <- c("V2185","V2214","V2215","V2211","V1657","V1679",
@@ -67,19 +71,19 @@ HR = make_equal_sets(two_class_data[[2]])
 Triple = make_equal_sets(two_class_data[[3]])
 
 
-############################## TRAINING MODELS ############################################
+############################## TRAINING MODELS ON TWO CLASSES ##############################
 
 # see in source file model_tuning.R for link to documentation
 result_all_data = train_all_models(combine,features)
 
 # see what happenson two class sets (HER2, HR and Triple)
-features_HER2 = filter_Var_selection(HER2,number_of_features=10)
+features_HER2 = filter_Var_selection(HER2,number_of_features=30)
 result_HER2 = train_all_models(HER2, features_HER2)
 
-features_HR = filter_Var_selection(HR,number_of_features=10)
+features_HR = filter_Var_selection(HR,number_of_features=30)
 result_HR = train_all_models(HR, features_HR)
 
-features_Triple = filter_Var_selection(Triple,number_of_features=10)
+features_Triple = filter_Var_selection(Triple,number_of_features=30)
 results_Triple = train_all_models(Triple, features_Triple)
 
 summary(result_HER2)[3]$statistics$Accuracy

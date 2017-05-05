@@ -6,6 +6,8 @@
 
 
 # gbm https://topepo.github.io/caret/model-training-and-tuning.html#model-training-and-parameter-tuning
+# https://cran.r-project.org/web/packages/gbm/gbm.pdf
+# 
 gbm_tuning = function(x,features) {
   gbmGrid <-  expand.grid(interaction.depth = c(1, 5, 9), 
                           n.trees = (1:30)*50, 
@@ -45,12 +47,14 @@ svm_tuning = function(x,features) {
                 method = "svmRadial", 
                 trControl = fitControl, 
                 preProc = c("center", "scale"),
-                tuneLength = 8,
-                metric = "ROC")
+                tuneLength = 8)
   return(svmFit)
 }
 
 # nnet Neural Networks with Feature Extraction
+# Tuning parameters:
+# size (#Hidden Units)
+# decay (Weight Decay)
 nnet_tuning = function(x,features) {
   
   fitControl <- trainControl(method = "repeatedcv",
@@ -69,7 +73,9 @@ nnet_tuning = function(x,features) {
   return(nnetFIT)
 }
 
-# plr https://topepo.github.io/caret/train-models-by-tag.html#l2-regularization
+# Penalized Multinomial Regression https://topepo.github.io/caret/train-models-by-tag.html#l2-regularization
+# Tuning parameters:
+# decay (Weight Decay)
 mr_tuning = function(x,features) {
   
   fitControl <- trainControl(method = "repeatedcv",

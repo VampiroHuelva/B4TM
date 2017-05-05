@@ -31,14 +31,6 @@ Load_labeled_Data = function() {
   return(combine)
 }
 
-# simple feature selection
-filter_Var_selection = function(x,number_of_features) {
-  fill=filterVarImp(x[,2:ncol(x)],x[,1],nonpara = FALSE)
-  fill = sort(rowMeans(fill), decreasing = T)
-  features <- names(fill[1:number_of_features])
-  return(features)
-}
-
 # make train and test sets for double loop cross validation
 double_crossval_datasets = function(combine, crossval, loops) {
   
@@ -92,13 +84,13 @@ double_crossval_datasets = function(combine, crossval, loops) {
 }
 
 # make train and test sets for double loop cross validation (werkt alleen met 3 classes)
-crossval_sets = function(combine, crossval) {
+crossval_sets = function(x, crossval) {
   # group data by class
-  HER2plus <-combine[combine$Subgroup=="HER2Plus",]
-  HRplus <- combine[combine$Subgroup=="HRPlus",]
-  TrNeg <- combine[combine$Subgroup=="TripleNeg",]
+  HER2plus <-x[x$Subgroup=="HER2Plus",]
+  HRplus <- x[x$Subgroup=="HRPlus",]
+  TrNeg <- x[x$Subgroup=="TripleNeg",]
   
-  cross <- function(x,n) split(x, factor(sort(rank(x)%%n)))
+  cross <- function(y,n) split(y, factor(sort(rank(y)%%n)))
   
   # randomize in the groups
   HE <- sample(1:length(HER2plus[,1]),replace = F)
@@ -106,25 +98,45 @@ crossval_sets = function(combine, crossval) {
   Tr <- sample(1:length(TrNeg[,1]),replace= F)
   
   # divide in n testsets
-  crossval = 5
   total_HE = cross(HE,crossval)
   total_HR = cross(HR,crossval)
   total_Tr = cross(Tr,crossval)
-  
+
   sets <- vector("list", crossval)
   
-  for (i in 1:crossval) {
-    # extracting the testset
-    test <- rbind(HER2plus[total_HE[[i]],],HRplus[total_HR[[i]],],TrNeg[total_Tr[[i]],])
+  if (crossval != 1) {
+    for (i in 1:crossval) {
+      # extracting the testset
+      test <- rbind(HER2plus[total_HE[[i]],],HRplus[total_HR[[i]],],TrNeg[total_Tr[[i]],])
+      
+      # extracting the trainset 
+      HE_t = unlist(setdiff(total_HE,total_HE[i]))
+      HR_t = unlist(setdiff(total_HR,total_HR[i]))
+      Tr_t = unlist(setdiff(total_Tr,total_Tr[i]))
+      
+      train = rbind(HER2plus[HE_t,],HRplus[HR_t,],TrNeg[Tr_t,])
+      #saving the sets
+      sets[[i]]<-list(train,test)
+      }
+   } else {
+    sample_size = floor(0.75 * nrow(HER2plus))
+    train_ind <- sample(seq_len(nrow(HER2plus)), size = sample_size)
+    train_HER2 <- HER2plus[train_ind, ]
+    test_HER2 <- HER2plus[-train_ind, ]
     
-    # extracting the trainset 
-    HE_t = unlist(setdiff(total_HE,total_HE[i]))
-    HR_t = unlist(setdiff(total_HR,total_HR[i]))
-    Tr_t = unlist(setdiff(total_Tr,total_Tr[i]))
+    sample_size = floor(0.75 * nrow(HRplus))
+    train_ind <- sample(seq_len(nrow(HRplus)), size = sample_size)
+    train_HR <- HRplus[train_ind, ]
+    test_HR <- HRplus[-train_ind, ]
     
-    train = rbind(HER2plus[HE_t,],HRplus[HR_t,],TrNeg[Tr_t,])
-    #saving the sets
-    sets[[i]]<-list(train,test)
+    sample_size = floor(0.75 * nrow(TrNeg))
+    train_ind <- sample(seq_len(nrow(TrNeg)), size = sample_size)
+    train_Tr <- TrNeg[train_ind, ]
+    test_Tr <- TrNeg[-train_ind, ]
+
+    train <- rbind(train_HER2,train_HR,train_Tr)
+    test <- rbind(test_HER2,test_HR,test_Tr)
+    sets[[1]]<-list(train,test)
   }
   return(sets)
 }
