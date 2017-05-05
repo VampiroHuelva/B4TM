@@ -115,6 +115,7 @@ crossval_sets = function(x, crossval) {
       Tr_t = unlist(setdiff(total_Tr,total_Tr[i]))
       
       train = rbind(HER2plus[HE_t,],HRplus[HR_t,],TrNeg[Tr_t,])
+      
       #saving the sets
       sets[[i]]<-list(train,test)
       }
@@ -180,7 +181,7 @@ train_all_models = function(x, features){
   mrFit = mr_tuning(x,features)
   rfFit = rf_tuning(x,features)
   resamps <- resamples(list(GBM = gbmFit, SVM = svmFit, NNET = nnetFit, MR = mrFit, RF = rfFit))
-  return(resamps)
+  return(list(gbmFit,svmFit,nnetFit,mrFit,rfFit,resamps))
 }
 
 get_trained_models = function(x, features){
@@ -190,4 +191,12 @@ get_trained_models = function(x, features){
   mrFit = mr_tuning(x,features)
   rfFit = rf_tuning(x,features)
   return(list(gbmFit,svmFit,nnetFit,mrFit,rfFit))
+}
+
+results_prediction = function(real, pred) {
+  total = sum(real == pred)
+  HER2 = sum(real[real==1] == pred[real==1])
+  HR = sum(real[real==2] == pred[real==2])
+  TRIPLE = sum(real[real==3] == pred[real==3])
+  return(list(total,HER2,HR,TRIPLE))
 }

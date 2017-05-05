@@ -16,7 +16,7 @@ filter_Var_selection = function(x,number_of_features) {
 }
 
 feature_var_imp = function(model,number_of_features) {
-  col_index <- varImp(model)$importance %>% 
+  col_index <- varImp(model, scale = FALSE)$importance %>% 
     mutate(names=row.names(.)) %>%
     arrange(-Overall)
   imp_names <- col_index$names[1:number_of_features]
