@@ -23,6 +23,7 @@ source("code/feature_selection.R")
 library(splines); library(parallel); library(survival); library(caret); library(mlbench)
 library(gbm); library(corrplot); library(pROC); library(FSelector); library(qtlcharts)
 library(lattice); library(energy); library(RWeka); library(obliqueRF); library(stepPlr);
+library(dplyr); library(LiblineaR); library(kernlab)
 
 # get the train data and write to WEKA file
 combine = Load_labeled_Data()
@@ -33,7 +34,7 @@ combine = Load_labeled_Data()
 
 
 # Feature selection by importance ()
-features = filter_Var_selection()[1:20]
+features = filter_Var_selection()[1:10]
 
 # use rfe featureselection (not returningfeatures still)
 features_rfe = feature_selection_rfe(combine)
@@ -130,6 +131,52 @@ for (j in 1:crossval) {
 }
 
 
+####################################### USING THE ABOVE RESULTS ##################################
+
+## TODO MAKE SOME MORE STATISTICAL ESTIMATES POSSIBLY BY GETTING RESULTS FOR EACH CROSS VALLIDATION
+## SO DO 10 times EVERY CROSS VALIDATION: summary(FITMODEL)[3]$statistics$Accuracy 
+## USE THIS DATA TO MAKE A CONFIDENCE INTERVAL OR REPORT FOR EACH ALL THE CONVIDENCE INTERVALS
+
+sum(real == pred_nnetFit)
+sum(real == pred_mrFit)
+sum(real == pred_svmFit)
+sum(real == pred_rfFit)
+sum(real == pred_gbmFit)
+real==2
+
+class_cancer = 1
+sum(real==class_cancer)
+sum(real[real==class_cancer] == pred_nnetFit[real==class_cancer])
+sum(real[real==class_cancer] == pred_mrFit[real==class_cancer])
+sum(real[real==class_cancer] == pred_svmFit[real==class_cancer])
+sum(real[real==class_cancer] == pred_rfFit[real==class_cancer])
+sum(real[real==class_cancer] == pred_gbmFit[real==class_cancer])
+
+sum(real=class_cancer)
+class_cancer = 2
+sum(real==class_cancer)
+sum(real[real==class_cancer] == pred_nnetFit[real==class_cancer])
+sum(real[real==class_cancer] == pred_mrFit[real==class_cancer])
+sum(real[real==class_cancer] == pred_svmFit[real==class_cancer])
+sum(real[real==class_cancer] == pred_rfFit[real==class_cancer])
+sum(real[real==class_cancer] == pred_gbmFit[real==class_cancer])
+
+class_cancer = 3
+sum(real==class_cancer)
+sum(real[real==class_cancer] == pred_nnetFit[real==class_cancer])
+sum(real[real==class_cancer] == pred_mrFit[real==class_cancer])
+sum(real[real==class_cancer] == pred_svmFit[real==class_cancer])
+sum(real[real==class_cancer] == pred_rfFit[real==class_cancer])
+sum(real[real==class_cancer] == pred_gbmFit[real==class_cancer])
+
+
+################################### EXPERIMENTAL STUFF ###########################################
+################################### EXPERIMENTAL STUFF ###########################################
+################################### EXPERIMENTAL STUFF ###########################################
+################################### EXPERIMENTAL STUFF ###########################################
+################################### EXPERIMENTAL STUFF ###########################################
+################################### EXPERIMENTAL STUFF ###########################################
+
 ################# TRAINING MODELS ON THREE CLASSES FEATURE SELECTIONON TRAIN DATA ################
 
 
@@ -151,23 +198,23 @@ for (j in 1:crossval) {
 
   # train the models and store on the trainset (feature selection on train set)
   gbmFit = gbm_tuning(train_set,features)
-  gbmFit_features = feature_var_imp(gbmFit,features,10)
+  gbmFit_features = feature_var_imp(gbmFit,10)
   gbmFit = gbm_tuning(train_set,gbmFit_features)
   
   svmFit = svm_tuning(train_set,features)
-  svmFit_features = feature_var_imp(svmFit,features,10)
+  svmFit_features = feature_var_imp(svmFit,10)
   svmFit = svm_tuning(train_set,svmFit_features)
 
   nnetFit = nnet_tuning(train_set,features)
-  nnetFit_features = feature_var_imp(nnetFit,features,10)
+  nnetFit_features = feature_var_imp(nnetFit,10)
   nnetFit = nnet_tuning(train_set,nnetFit_features)
  
   mrFit = mr_tuning(train_set,features)
-  mrFit_features = feature_var_imp(mrFit,features,10)
+  mrFit_features = feature_var_imp(mrFit,10)
   mrFit = mr_tuning(train_set,mrFit_features) 
   
   rfFit = rf_tuning(train_set,features)
-  rfFit_features = feature_var_imp(rfFit,features,10)
+  rfFit_features = feature_var_imp(rfFit,10)
   rfFit = rf_tuning(train_set,rfFit_features) 
   
   # add real and predicted values
@@ -183,70 +230,33 @@ for (j in 1:crossval) {
 ##################### NOW we can compare the models with different feature selection ###################
 
 
-sum(real == pred_nnetFit)
-sum(real == pred_mrFit)
-sum(real == pred_svmFit)
-sum(real == pred_rfFit)
-sum(real == pred_gbmFit)
-
-
 # further stuff doesnt work still
 
 # plot rocplots of all models
 
-real = c(simple_cross_sets[[1]][[2]]$Subgroup,simple_cross_sets[[2]][[2]]$Subgroup,
-         simple_cross_sets[[3]][[2]]$Subgroup,simple_cross_sets[[4]][[2]]$Subgroup,
-         simple_cross_sets[[5]][[2]]$Subgroup,simple_cross_sets[[6]][[2]]$Subgroup,
-         simple_cross_sets[[7]][[2]]$Subgroup,simple_cross_sets[[8]][[2]]$Subgroup,
-         simple_cross_sets[[9]][[2]]$Subgroup,simple_cross_sets[[10]][[2]]$Subgroup)
+# real = c(simple_cross_sets[[1]][[2]]$Subgroup,simple_cross_sets[[2]][[2]]$Subgroup,
+#          simple_cross_sets[[3]][[2]]$Subgroup,simple_cross_sets[[4]][[2]]$Subgroup,
+#          simple_cross_sets[[5]][[2]]$Subgroup,simple_cross_sets[[6]][[2]]$Subgroup,
+#          simple_cross_sets[[7]][[2]]$Subgroup,simple_cross_sets[[8]][[2]]$Subgroup,
+#          simple_cross_sets[[9]][[2]]$Subgroup,simple_cross_sets[[10]][[2]]$Subgroup)
 
 multiclass.roc(as.numeric(real), as.numeric(pred_mrFit))
 
-multiclass.roc(real, pred_mrFit)[1]plot_roc(real, pred_mrFit)
+multiclass.roc(real, pred_mrFit)[1]plot_roc(real, pred_svmFit)
 multiclass.roc(real, pred_mrFit)[1]plot_roc(real, pred_nnetFit)
 
+plot_roc(as.numeric(real), as.numeric(pred_mrFit))
 
 plot_roc = function(real, pred) {
-  r = c()
   print(confusionMatrix(real, pred)[2:3])
   test_all = as.numeric(real)
   pred_num = as.numeric(pred)
   roc = multiclass.roc(pred_num,test_all)
-  r <- append(r,auc(roc))
+  auc = auc(roc)
   rs <- roc[['rocs']]
   plot.roc(rs[[1]])
   sapply(2:length(rs),function(h) lines.roc(rs[[h]],col=h))
-}
-
-
-r = c()
-print(confusionMatrix(real, pred_gbmFit)[2:3])
-print(confusionMatrix(real, pred_svmFit)[2:3])
-print(confusionMatrix(real, pred_nnetFit)[2:3])
-print(confusionMatrix(real, pred_mrFit)[2:3])
-print(confusionMatrix(real, pred_rfFit)[2:3])
-test_all = as.numeric(test)
-pred_gbmFit = as.numeric(pred_gbmFit)
-pred_svmFit = as.numeric(pred_svmFit)
-pred_nnetFit = as.numeric(pred_nnetFit)
-pred_nnetFit = as.numeric(pred_mrFit)
-pred_gbmFit = as.numeric(pred_rfFit)
-roc_pred_gbmFit = multiclass.roc(test_all,pred_gbmFit)
-roc_pred_svmFit = multiclass.roc(test_all,pred_svmFit)
-roc_pred_nnetFit = multiclass.roc(test_all,pred_nnetFit)
-roc_pred_mrFit = multiclass.roc(test_all,pred_mrFit)
-roc_pred_rfFit = multiclass.roc(test_all,pred_rfFit)
-r <- append(r,auc(roc))
-rs <- roc_pred_gbmFit[['rocs']]
-rs <- roc_pred_gbmFit[['rocs']]
-rs <- roc_pred_gbmFit[['rocs']]
-rs <- roc_pred_gbmFit[['rocs']]
-rs <- roc_pred_gbmFit[['rocs']]
-
-
-
-plot.roc(rs[[1]])
-sapply(2:length(rs),function(h) lines.roc(rs[[h]],col=h))
+  print(auc)
 }
 
 
@@ -286,79 +296,3 @@ Model <- NNET_Model(final_model)
 Unlabelled_data <- Load_Unlabeled_Data("Data/unlabelled_sample.txt")
 pred = predict(MODEL,Unlabelled_data)
 pred
-
-
-
-
-
-# lets train nnet, ft, svmRadial,J48 and gbm
-# making a list with n different models
-
-# ####  Getting scores of the models to choose the number of features to use and the best model
-# Nmodel = 3
-# models <- vector("list",Nmodel)
-# for (i in 1:Nmodel) {
-#   models[[i]] <- vector("list",loops)
-#   for (j in 1:loops)
-#     models[[i]][[j]] <- vector("list",crossval)
-# }
-# 
-# for (i in 1:loops) {
-#   for (j in 1:crossval) {
-#      features =Huge_Unic[1:10+i]
-#     model = paste(features, collapse=' + ')
-#     model = paste("Subgroup ~ ", model, collapse ='')
-#     model
-#     fitControl <- trainControl(## 10-fold CV
-#       method = "repeatedcv",
-#       number = 10,
-#       ## repeated ten times
-#       repeats = 10)
-#     models[[1]][[i]][[j]] <- train(eval(parse(text=model)), data = sets[[i]][[1]][[j]][[1]], method = "nnet", trControl = fitControl, verbose = FALSE)
-#     
-#     # gbm
-#     features =Huge_Unic[1:15+i]
-#     #[1:(5+j)]
-#     model = paste(features, collapse=' + ')
-#     model = paste("Subgroup ~ ", model, collapse ='')
-#     models[[2]][[i]][[j]] <- train(eval(parse(text=model)), data = sets[[i]][[1]][[j]][[1]], method = "nnet", verbose = FALSE)
-#     
-#     #svm
-#     features =Huge_Unic[1:20+i]
-#     fitControl <- trainControl(## 10-fold CV
-#       method = "repeatedcv",
-#       number = 10,
-#       ## repeated ten times
-#       repeats = 10)
-#     #features[1:(5+j)]
-#     model = paste(features, collapse=' + ')
-#     model = paste("Subgroup ~ ", model, collapse ='')
-#     models[[3]][[i]][[j]] <- train(eval(parse(text=model)), data = sets[[i]][[1]][[j]][[1]], method = "nnet", trControl = fitControl, verbose = FALSE)
-#   }    
-# }
-# ### COMPARE THE MODELS NOW ###
-# 
-# for (k in 1:Nmodel) {
-#   for (i in 1:loops) {
-#     r = c()#r[i]=
-#     for (j in 1:crossval) {
-#       #varimp <- varImp(models[[k]][[i]][[j]], varImp.train=FALSE)
-#       pred = predict(models[[k]][[i]][[j]],data=sets[[i]][[1]][[j]][[2]],na.omit(sets[[i]][[1]][[j]][[2]]))
-#       #print(confusionMatrix(sets[[i]][[1]][[j]][[2]][,1], pred)[2:3])
-#       if (1) {
-#         x = as.numeric(sets[[i]][[1]][[j]][[2]][,1])
-#         y = as.numeric(pred)
-#         roc = multiclass.roc(x,y)
-#         r <- append(r,auc(roc))
-#         rs <- roc[['rocs']]
-#         #plot.roc(rs[[1]])
-#         #sapply(2:length(rs),function(h) lines.roc(rs[[h]],col=h))
-#         
-#         
-#       }
-# #scoring of the dirent models selected with the number of features selected      
-#     }
-#     print(mean(r))
-#     print(k)
-#   }
-# }

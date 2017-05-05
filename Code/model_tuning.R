@@ -30,18 +30,14 @@ svm_tuning = function(x,features) {
   
   fitControl <- trainControl(method = "repeatedcv",
                            number = 10,
-                           repeats = 10,
-                           ## Estimate class probabilities
-                           classProbs = TRUE)
+                           repeats = 10)
   
   formula_model = paste(features, collapse=' + ')
   formula_model = paste("Subgroup ~ ", formula_model, collapse ='')
 
   svmFit <- train(eval(parse(text=formula_model)), data = x, 
-                method = "svmRadial", 
-                trControl = fitControl, 
-                preProc = c("center", "scale"),
-                tuneLength = 8)
+                method = "svmRadialWeights", 
+                trControl = fitControl)
   return(svmFit)
 }
 
@@ -53,9 +49,7 @@ nnet_tuning = function(x,features) {
   
   fitControl <- trainControl(method = "repeatedcv",
                              number = 10,
-                             repeats = 10,
-                             ## Estimate class probabilities
-                             classProbs = TRUE)
+                             repeats = 10)
   
   formula_model = paste(features, collapse=' + ')
   formula_model = paste("Subgroup ~ ", formula_model, collapse ='')
@@ -75,9 +69,7 @@ mr_tuning = function(x,features) {
   
   fitControl <- trainControl(method = "repeatedcv",
                              number = 10,
-                             repeats = 10,
-                             ## Estimate class probabilities
-                             classProbs = TRUE)
+                             repeats = 10)
   
   formula_model = paste(features, collapse=' + ')
   formula_model = paste("Subgroup ~ ", formula_model, collapse ='')
@@ -95,9 +87,7 @@ rf_tuning = function(x,features) {
   
   fitControl <- trainControl(method = "repeatedcv",
                              number = 10,
-                             repeats = 10,
-                             ## Estimate class probabilities
-                             classProbs = TRUE)
+                             repeats = 10)
   
   formula_model = paste(features, collapse=' + ')
   formula_model = paste("Subgroup ~ ", formula_model, collapse ='')
