@@ -73,9 +73,15 @@ Triple = make_equal_sets(two_class_data[[3]])
 result_all_data = train_all_models(combine,features)
 
 # see what happenson two class sets (HER2, HR and Triple)
-result_HER2 = train_all_models(HER2, features)
-result_HR = train_all_models(HR, features)
-results_Triple = train_all_models(Triple, features)
+features_HER2 = filter_Var_selection(HER2,number_of_features=10)
+result_HER2 = train_all_models(HER2, features_HER2)
+
+features_HR = filter_Var_selection(HR,number_of_features=10)
+result_HR = train_all_models(HR, features_HR)
+
+features_Triple = filter_Var_selection(Triple,number_of_features=10)
+results_Triple = train_all_models(Triple, features_Triple)
+
 summary(result_HER2)[3]$statistics$Accuracy
 summary(result_HR)[3]$statistics$Accuracy
 summary(results_Triple)[3]$statistics$Accuracy
