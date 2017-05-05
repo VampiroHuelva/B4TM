@@ -31,7 +31,7 @@ Load_labeled_Data = function() {
   return(combine)
 }
 
-# make train and test sets for double loop cross validation
+# make train and test sets for double loop cross validation (workswith 3 classes)
 double_crossval_datasets = function(combine, crossval, loops) {
   
   # group data by class
@@ -83,7 +83,7 @@ double_crossval_datasets = function(combine, crossval, loops) {
   }
 }
 
-# make train and test sets for double loop cross validation (werkt alleen met 3 classes)
+# make train and test sets for single loop cross validation (workswith 3 classes)
 crossval_sets = function(x, crossval) {
   # group data by class
   HER2plus <-x[x$Subgroup=="HER2Plus",]
@@ -183,3 +183,11 @@ train_all_models = function(x, features){
   return(resamps)
 }
 
+get_trained_models = function(x, features){
+  gbmFit = gbm_tuning(x,features) 
+  svmFit = svm_tuning(x,features)
+  nnetFit = nnet_tuning(x,features)
+  mrFit = mr_tuning(x,features)
+  rfFit = rf_tuning(x,features)
+  return(list(gbmFit,svmFit,nnetFit,mrFit,rfFit))
+}

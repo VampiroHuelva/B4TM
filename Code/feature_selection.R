@@ -15,6 +15,11 @@ filter_Var_selection = function(x,number_of_features) {
   return(features)
 }
 
+feature_var_imp = function(model,features,number_of_features) {
+  features_model <- varImp(model, scale = FALSE)
+  return(features_model[1:number_of_features])
+}
+
 feature_selection_rfe = function(x) {
 
   sets = crossval_sets(x,1)[[1]]
@@ -29,3 +34,13 @@ feature_selection_rfe = function(x) {
   postResample(predict(ldaProfile, test[,2:ncol(test)]), test[,1])
   return("this should be a feature list")
 }
+
+filter_Var_selection = function(x,number_of_features) {
+  fill=filterVarImp(x[,2:ncol(x)],x[,1],nonpara = FALSE)
+  fill = sort(rowMeans(fill), decreasing = T)
+  features <- names(fill[1:number_of_features])
+  return(features)
+}
+
+
+

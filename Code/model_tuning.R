@@ -9,11 +9,6 @@
 # https://cran.r-project.org/web/packages/gbm/gbm.pdf
 # 
 gbm_tuning = function(x,features) {
-  gbmGrid <-  expand.grid(interaction.depth = c(1, 5, 9), 
-                          n.trees = (1:30)*50, 
-                          shrinkage = 0.1,
-                          n.minobsinnode = 20)
-  
   fitControl <- trainControl(method = "repeatedcv",
                              number = 10,
                              repeats = 10,
@@ -26,8 +21,7 @@ gbm_tuning = function(x,features) {
   gbmFit <- train(eval(parse(text=formula_model)), data = x, 
                    method = "gbm", 
                    trControl = fitControl, 
-                   verbose = FALSE, 
-                   tuneGrid = gbmGrid)
+                   verbose = FALSE)
   return(gbmFit)
 }
 
@@ -69,7 +63,8 @@ nnet_tuning = function(x,features) {
   nnetFIT <- train(eval(parse(text=formula_model)), data = x, 
                   method = "pcaNNet", 
                   trControl = fitControl, 
-                  preProc = c("center", "scale"))
+                  preProc = c("center", "scale"),
+                  trace = FALSE)
   return(nnetFIT)
 }
 
