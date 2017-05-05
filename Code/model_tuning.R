@@ -21,12 +21,12 @@ gbm_tuning = function(x,features) {
   formula_model = paste(features, collapse=' + ')
   formula_model = paste("Subgroup ~ ", formula_model, collapse ='')
   
-  gbmFit3 <- train(eval(parse(text=formula_model)), data = x, 
+  gbmFit <- train(eval(parse(text=formula_model)), data = x, 
                    method = "gbm", 
                    trControl = fitControl, 
                    verbose = FALSE, 
                    tuneGrid = gbmGrid)
-  return(gbmFit3)
+  return(gbmFit)
 }
 
 # svm
@@ -65,8 +65,7 @@ nnet_tuning = function(x,features) {
   nnetFIT <- train(eval(parse(text=formula_model)), data = x, 
                   method = "pcaNNet", 
                   trControl = fitControl, 
-                  preProc = c("center", "scale"),
-                  metric = "ROC")
+                  preProc = c("center", "scale"))
   return(nnetFIT)
 }
 
@@ -104,8 +103,7 @@ rf_tuning = function(x,features) {
   
   rfFIT <- train(eval(parse(text=formula_model)), data = x, 
                  method = "rf", 
-                 trControl = fitControl, 
-                 metric = "ROC")
+                 trControl = fitControl)
   return(rfFIT)
 }
 

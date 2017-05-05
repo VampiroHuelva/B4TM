@@ -5,8 +5,8 @@
 ### cancer types. First the data is read in to perform a data inspection.... TODO FINISH  
 ### .....
 ### 
-### Dependecies: misc.R
-### input: ... datasets
+### Dependecies: misc.R and model_tuning.R
+### input: Train_call.txt, Train_clinical.txt andunlabelled_sample.txt
 ### output: .... models
 ###
 ###
@@ -69,18 +69,18 @@ Triple = make_equal_sets(two_class_data[[3]])
 
 ############################## TRAINING MODELS ############################################
 
-
-## determine the best parameters for each model
-
 # see in source file model_tuning.R for link to documentation
-gbmFit = gbm_tuning(combine,features) 
-svmFit = svm_tuning(combine,features)
-nnetFit = nnet_tuning(combine,features)
-mrFit = mr_tuning(combine,features)
-rfFit = rf_tuning(combine,features)
+result_all_data = train_all_models(combine,features)
 
-resamps <- resamples(list(GBM = gbmFit3, SVM = svmFit, NNET = nnetFit, MR = mrFit, RF = rfFit))
-summary(resamps)
+# see what happenson two class sets (HER2, HR and Triple)
+result_HER2 = train_all_models(HER2, features)
+result_HR = train_all_models(HR, features)
+results_Triple = train_all_models(Triple, features)
+summary(result_HER2)[3]$statistics$Accuracy
+summary(result_HR)[3]$statistics$Accuracy
+summary(results_Triple)[3]$statistics$Accuracy
+
+
 
 ## model selection (store the settings for models to train with)##
 models = c("nnet", "rf", "gbm", "glm")

@@ -160,3 +160,14 @@ make_equal_sets = function(x,class) {
   }
   return(result) 
 }
+
+train_all_models = function(x, features){
+  gbmFit = gbm_tuning(x,features) 
+  svmFit = svm_tuning(x,features)
+  nnetFit = nnet_tuning(x,features)
+  mrFit = mr_tuning(x,features)
+  rfFit = rf_tuning(x,features)
+  resamps <- resamples(list(GBM = gbmFit, SVM = svmFit, NNET = nnetFit, MR = mrFit, RF = rfFit))
+  return(resamps)
+}
+
