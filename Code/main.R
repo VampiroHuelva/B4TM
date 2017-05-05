@@ -34,7 +34,7 @@ combine = Load_labeled_Data()
 
 
 # Feature selection by importance ()
-features = filter_Var_selection()[1:10]
+features = filter_Var_selection(combine,30)
 
 # use rfe featureselection (not returningfeatures still)
 features_rfe = feature_selection_rfe(combine)
@@ -103,6 +103,12 @@ pred_nnetFit = c()
 pred_mrFit = c()
 pred_rfFit = c()
 real_values = c()
+acc_gbmFit = c()
+acc_svmFit = c()
+acc_nnetFit = c()
+acc_mrFit = c()
+acc_rfFit = c()
+acc_values = c()
 
 # feature selection on each crossval train and do test and store predictions for roc plot
 for (j in 1:crossval) {
@@ -114,13 +120,20 @@ for (j in 1:crossval) {
   features = CorrelationAttribute
   
   # train the models and store on the trainset (feature selection before on whole set)
-  models_trained = get_trained_models(train_set,features) 
+  models_trained = train_all_models(train_set,features) 
   gbmFit = models_trained[[1]]
   svmFit = models_trained[[2]]
   nnetFit = models_trained[[3]]
   mrFit = models_trained[[4]]
   rfFit = models_trained[[5]]
-  
+  resample = models_trained[[6]]
+
+  acc_gbmFit = append(acc_gbmFit,summary(resample)$statistics$Accuracy[1,4])
+  acc_svmFit = append(acc_svmFit,summary(resample)$statistics$Accuracy[2,4])
+  acc_nnetFit = append(acc_nnetFit,summary(resample)$statistics$Accuracy[3,4])
+  acc_mrFit = append(acc_mrFit,summary(resample)$statistics$Accuracy[4,4])
+  acc_rfFit = append(acc_rfFit,summary(resample)$statistics$Accuracy[5,4])
+
   # add real and predicted values
   real = append(real, test_set$Subgroup)      
   pred_gbmFit = append(pred_gbmFit, predict(gbmFit,test_set))
@@ -131,56 +144,12 @@ for (j in 1:crossval) {
 }
 
 
-####################################### USING THE ABOVE RESULTS ##################################
-
-## TODO MAKE SOME MORE STATISTICAL ESTIMATES POSSIBLY BY GETTING RESULTS FOR EACH CROSS VALLIDATION
-## SO DO 10 times EVERY CROSS VALIDATION: summary(FITMODEL)[3]$statistics$Accuracy 
-## USE THIS DATA TO MAKE A CONFIDENCE INTERVAL OR REPORT FOR EACH ALL THE CONVIDENCE INTERVALS
-
-sum(real == pred_nnetFit)
-sum(real == pred_mrFit)
-sum(real == pred_svmFit)
-sum(real == pred_rfFit)
-sum(real == pred_gbmFit)
-real==2
-
-class_cancer = 1
-sum(real==class_cancer)
-sum(real[real==class_cancer] == pred_nnetFit[real==class_cancer])
-sum(real[real==class_cancer] == pred_mrFit[real==class_cancer])
-sum(real[real==class_cancer] == pred_svmFit[real==class_cancer])
-sum(real[real==class_cancer] == pred_rfFit[real==class_cancer])
-sum(real[real==class_cancer] == pred_gbmFit[real==class_cancer])
-
-sum(real=class_cancer)
-class_cancer = 2
-sum(real==class_cancer)
-sum(real[real==class_cancer] == pred_nnetFit[real==class_cancer])
-sum(real[real==class_cancer] == pred_mrFit[real==class_cancer])
-sum(real[real==class_cancer] == pred_svmFit[real==class_cancer])
-sum(real[real==class_cancer] == pred_rfFit[real==class_cancer])
-sum(real[real==class_cancer] == pred_gbmFit[real==class_cancer])
-
-class_cancer = 3
-sum(real==class_cancer)
-sum(real[real==class_cancer] == pred_nnetFit[real==class_cancer])
-sum(real[real==class_cancer] == pred_mrFit[real==class_cancer])
-sum(real[real==class_cancer] == pred_svmFit[real==class_cancer])
-sum(real[real==class_cancer] == pred_rfFit[real==class_cancer])
-sum(real[real==class_cancer] == pred_gbmFit[real==class_cancer])
+################# TRAINING MODELS ON THREE CLASSES FEATURE SELECTION ON TRAIN DATA ################
 
 
-################################### EXPERIMENTAL STUFF ###########################################
-################################### EXPERIMENTAL STUFF ###########################################
-################################### EXPERIMENTAL STUFF ###########################################
-################################### EXPERIMENTAL STUFF ###########################################
-################################### EXPERIMENTAL STUFF ###########################################
-################################### EXPERIMENTAL STUFF ###########################################
-
-################# TRAINING MODELS ON THREE CLASSES FEATURE SELECTIONON TRAIN DATA ################
-
-
+### select first all features from the feature selecting methods combined
 features = CorrelationAttribute
+
 real = c()
 pred_gbmFit = c()
 pred_svmFit = c()
@@ -188,6 +157,12 @@ pred_nnetFit = c()
 pred_mrFit = c()
 pred_rfFit = c()
 real_values = c()
+acc_gbmFit = c()
+acc_svmFit = c()
+acc_nnetFit = c()
+acc_mrFit = c()
+acc_rfFit = c()
+acc_values = c()
 
 # feature selection on each crossval train and do test and store predictions for roc plot
 for (j in 1:crossval) {
@@ -196,28 +171,38 @@ for (j in 1:crossval) {
   train_set = simple_cross_sets[[j]][[1]]
   test_set = simple_cross_sets[[j]][[2]]
 
-  # train the models and store on the trainset (feature selection on train set)
+  # train the models (feature selection on train set)
+  print("gbm")
+  # do some feature selection that is woring???
   gbmFit = gbm_tuning(train_set,features)
-  gbmFit_features = feature_var_imp(gbmFit,10)
-  gbmFit = gbm_tuning(train_set,gbmFit_features)
-  
-  svmFit = svm_tuning(train_set,features)
-  svmFit_features = feature_var_imp(svmFit,10)
-  svmFit = svm_tuning(train_set,svmFit_features)
 
+  # do some feature selection that is woring???
+  print("svm")
+  svmFit = svm_tuning(train_set,features)
+
+  # do some feature selection that is woring???
+  print("nnet")
   nnetFit = nnet_tuning(train_set,features)
-  nnetFit_features = feature_var_imp(nnetFit,10)
-  nnetFit = nnet_tuning(train_set,nnetFit_features)
- 
+
+  print("mr")
   mrFit = mr_tuning(train_set,features)
   mrFit_features = feature_var_imp(mrFit,10)
   mrFit = mr_tuning(train_set,mrFit_features) 
   
+  print("rf")
   rfFit = rf_tuning(train_set,features)
   rfFit_features = feature_var_imp(rfFit,10)
   rfFit = rf_tuning(train_set,rfFit_features) 
   
-  # add real and predicted values
+  # saving all the accuracies of the models
+  resamps <- resamples(list(GBM = gbmFit, SVM = svmFit, NNET = nnetFit, MR = mrFit, RF = rfFit))
+  acc_gbmFit = append(acc_gbmFit,summary(resample)$statistics$Accuracy[1,4])
+  acc_svmFit = append(acc_svmFit,summary(resample)$statistics$Accuracy[2,4])
+  acc_nnetFit = append(acc_nnetFit,summary(resample)$statistics$Accuracy[3,4])
+  acc_mrFit = append(acc_mrFit,summary(resample)$statistics$Accuracy[4,4])
+  acc_rfFit = append(acc_rfFit,summary(resample)$statistics$Accuracy[5,4])
+
+    # add real and predicted values
   real = append(real, test_set$Subgroup)      
   pred_gbmFit = append(pred_gbmFit, predict(gbmFit,test_set))
   pred_svmFit = append(pred_svmFit, predict(svmFit,test_set))
@@ -229,67 +214,31 @@ for (j in 1:crossval) {
 
 ##################### NOW we can compare the models with different feature selection ###################
 
+acc_values = cbind(acc_gbmFit,acc_svmFit,acc_nnetFit,acc_mrFit,acc_rfFit)
+ 
+total_HER2 = sum(real==1)
+total_HR = sum(real==2)
+total_TRIPLE = sum(real==3)
 
-# further stuff doesnt work still
+gbm = results_prediction(real, pred_gbmFit)
+svm = results_prediction(real, pred_svmFit)
+nnet = results_prediction(real, pred_nnetFit)
+mr = results_prediction(real, pred_mrFit)
+rf = results_prediction(real, pred_rfFit)
 
-# plot rocplots of all models
+results = cbind(gbm,svm,nnet,mr,rf)
 
-# real = c(simple_cross_sets[[1]][[2]]$Subgroup,simple_cross_sets[[2]][[2]]$Subgroup,
-#          simple_cross_sets[[3]][[2]]$Subgroup,simple_cross_sets[[4]][[2]]$Subgroup,
-#          simple_cross_sets[[5]][[2]]$Subgroup,simple_cross_sets[[6]][[2]]$Subgroup,
-#          simple_cross_sets[[7]][[2]]$Subgroup,simple_cross_sets[[8]][[2]]$Subgroup,
-#          simple_cross_sets[[9]][[2]]$Subgroup,simple_cross_sets[[10]][[2]]$Subgroup)
-
-multiclass.roc(as.numeric(real), as.numeric(pred_mrFit))
-
-multiclass.roc(real, pred_mrFit)[1]plot_roc(real, pred_svmFit)
-multiclass.roc(real, pred_mrFit)[1]plot_roc(real, pred_nnetFit)
-
-plot_roc(as.numeric(real), as.numeric(pred_mrFit))
-
-plot_roc = function(real, pred) {
-  print(confusionMatrix(real, pred)[2:3])
-  test_all = as.numeric(real)
-  pred_num = as.numeric(pred)
-  roc = multiclass.roc(pred_num,test_all)
-  auc = auc(roc)
-  rs <- roc[['rocs']]
-  plot.roc(rs[[1]])
-  sapply(2:length(rs),function(h) lines.roc(rs[[h]],col=h))
-  print(auc)
-}
+final = rbind(acc_values,results)
+final
 
 
-####################### NOW we should train 4 models with best features selected on cross val ###########
 
-# compare the 4 models with each other and do the final predictions (TODO)
+######################################## TRAIN THE FINAL MODEL ON ALL DATA #############################
 
-# EXAMPLE OFTWO MODELS (gbmFit3 settings used above)
 
-gbmFit3 <- train(Subgroup ~ ., data = combine, 
-                 method = "gbm", 
-                 trControl = fitControl, 
-                 verbose = FALSE, 
-                 tuneGrid = gbmGrid,
-                 ## Specify which metric to optimize
-                 metric = "ROC")
 
-features = Huge_Unic[1:12]
-formula_model = paste(features, collapse=' + ')
-formula_model = paste("Subgroup ~ ", formula_model, collapse ='')
+#################################### DO THE FINAL PREDICTIONS ##########################################
 
-svmFit <- train(eval(parse(text=formula_model)), data = combine, 
-                method = "svmRadial", 
-                trControl = fitControl, 
-                preProc = c("center", "scale"),
-                tuneLength = 8,
-                metric = "ROC")
-svmFit
-resamps <- resamples(list(GBM = gbmFit3,SVM = svmFit))
-                     
-summary(resamps)
-
-#################################### DO THE FINAL PREDICTIONS ####################################
 
 save(MODEL, file= "model.pkl")
 Model <- NNET_Model(final_model)
