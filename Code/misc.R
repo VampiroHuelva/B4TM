@@ -4,6 +4,43 @@
 ###
 ############################################################################################
 
+load_depend = function() {
+  rm(list = ls())
+  source("code/model_tuning.R")
+  source("code/feature_selection.R")
+  
+  # Loading all the dependicies
+  library(splines); library(parallel); library(survival); library(caret); library(mlbench)
+  library(gbm); library(corrplot); library(pROC); library(FSelector); library(qtlcharts)
+  library(lattice); library(energy); library(RWeka); library(obliqueRF); library(stepPlr);
+  library(dplyr); library(LiblineaR); library(kernlab)
+  
+  #write.arff(combine, file = "combine.arff")
+}
+
+load_features = function() {
+  
+  # Feature selection by importance ()
+  features = filter_Var_selection(combine,30)
+  
+  # use rfe featureselection (not returningfeatures still)
+  features_rfe = feature_selection_rfe(combine)
+  
+  # Advance feature selction using WEKA. Algorithm used describe in the report
+  CorrelationAttribute <- c("V2185","V2214","V2215","V2211","V1657","V1679",
+                            "V675","V1668","V674","V1680","V2207","V2224","V2224","V1673",
+                            "V673","V1669","V1665","V2220","V693","V696","V855","V1678",
+                            "V2212","V1664","V1670","V1671","V2225","V1674","V853","V1675",
+                            "V850","V1663","V672","V680","V312","V673","V696","V773","V1570",
+                            "V1657","V2185","V2593","V2663","V2733","V2185")
+  J48_previous <- c("V2733", "V1647","V1647","V1564","V624","V624","V1679","V1679","V2548",
+                    "V148","V2548","V227","V2743")
+  filtering <- c("V312","V673","V696","V773","V1570","V1657","V2185","V25932","V2663","V2733")
+  Huge_combination <- c(J48_previous, CorrelationAttribute, filtering, features)
+  Huge_Unic <- unique(Huge_combination)
+  
+}
+
 # load unlabeled data
 Load_Unlabeled_Data <- function(input){
   
@@ -115,6 +152,7 @@ crossval_sets = function(x, crossval) {
       Tr_t = unlist(setdiff(total_Tr,total_Tr[i]))
       
       train = rbind(HER2plus[HE_t,],HRplus[HR_t,],TrNeg[Tr_t,])
+      
       #saving the sets
       sets[[i]]<-list(train,test)
       }
@@ -180,14 +218,89 @@ train_all_models = function(x, features){
   mrFit = mr_tuning(x,features)
   rfFit = rf_tuning(x,features)
   resamps <- resamples(list(GBM = gbmFit, SVM = svmFit, NNET = nnetFit, MR = mrFit, RF = rfFit))
-  return(resamps)
+  return(list(gbmFit,svmFit,nnetFit,mrFit,rfFit,resamps))
 }
 
-get_trained_models = function(x, features){
-  gbmFit = gbm_tuning(x,features) 
-  svmFit = svm_tuning(x,features)
-  nnetFit = nnet_tuning(x,features)
-  mrFit = mr_tuning(x,features)
-  rfFit = rf_tuning(x,features)
-  return(list(gbmFit,svmFit,nnetFit,mrFit,rfFit))
+train_all_models_with_feature_selection = function(train_set,features) {
+  
+  # do some feature selection that is woring???
+  gbmFit = gbm_tuning(train_set,features)
+  
+  # do some feature selection that is woring???
+  svmFit = svm_tuning(train_set,features)
+  
+  # do some feature selection that is woring???
+  nnetFit = nnet_tuning(train_set,features)
+  
+  mrFit = mr_tuning(train_set,features)
+  mrFit_features = feature_var_imp(mrFit,10)
+  mrFit = mr_tuning(train_set,mrFit_features) 
+  
+  rfFit = rf_tuning(train_set,features)
+  rfFit_features = feature_var_imp(rfFit,10)
+  rfFit = rf_tuning(train_set,rfFit_features)
+  
+  resamps <- resamples(list(GBM = gbmFit, SVM = svmFit, NNET = nnetFit, MR = mrFit, RF = rfFit))
+  return(list(gbmFit,svmFit,nnetFit,mrFit,rfFit,resamps))
+}
+
+results_prediction = function(real, pred) {
+  total = sum(real == pred)
+  HER2 = sum(real[real==1] == pred[real==1])
+  HR = sum(real[real==2] == pred[real==2])
+  TRIPLE = sum(real[real==3] == pred[real==3])
+  return(list(total,HER2,HR,TRIPLE))
+}
+
+save_models = function(models, models_trained) {
+  models[nrow(models)+1,] <- c(models_trained[[1]],
+                                models_trained[[2]],
+                                models_trained[[3]],
+                                models_trained[[4]],
+                                models_trained[[5]])
+  return(models)
+}
+
+save_pred =function(pred, models_trained, test_set) {
+  temp = cbind(predict(gbmFit,test_set),
+               predict(svmFit,test_set),
+               predict(nnetFit,test_set),
+               predict(mrFit,test_set),
+               predict(rfFit,test_set),
+               test_set$Subgroup)
+  for (i in 1:length(temp[,1])) {
+    red[nrow(pred)+i,] <- temp[i,]
+  }
+  return(pred)
+}
+
+save_accur = function(accur, resample) {
+  accur[nrow(accur)+1,] <- c(summary(resamps)$statistics$Accuracy[1,4],
+                             summary(resamps)$statistics$Accuracy[2,4],
+                             summary(resamps)$statistics$Accuracy[3,4],
+                             summary(resamps)$statistics$Accuracy[4,4],
+                             summary(resamps)$statistics$Accuracy[5,4])
+  return(accur)
+}
+
+empty_accur = function() {
+  accur <- data.frame(x= numeric(0), y= numeric(0), z = numeric(0),
+                      x= numeric(0), y= numeric(0))
+  colnames(accur) <- c("gbmFit","vmFit","nnetFit","mrFit","rfFit")
+  return(accur)
+}
+
+
+empty_accur = function() {
+  pred <- data.frame(x= numeric(0), y= numeric(0), z = numeric(0),
+                     x= numeric(0), y= numeric(0), z = numeric(0))
+  colnames(pred) <- c("gbmFit","vmFit","nnetFit","mrFit","rfFit","real")
+  return(pred)
+}
+
+empty_models = function() {
+  models <- data.frame(x= numeric(0), y= numeric(0), z = numeric(0),
+                      x= numeric(0), y= numeric(0))
+  colnames(models) <- c("gbmFit","vmFit","nnetFit","mrFit","rfFit")
+  return(models)
 }
