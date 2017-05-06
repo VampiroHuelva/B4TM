@@ -128,36 +128,12 @@ for (j in 1:crossval) {
 
 ##################### NOW we can compare the models with different feature selection ###################
 
-acc_values = cbind(acc_gbmFit,acc_svmFit,acc_nnetFit,acc_mrFit,acc_rfFit)
-
 accur
 pred
+models
+results = results_prediction(pred)
 
 
-total_HER2 = sum(real==1)
-total_HR = sum(real==2)
-total_TRIPLE = sum(real==3)
-
-gbm = results_prediction(real, pred_gbmFit)
-svm = results_prediction(real, pred_svmFit)
-nnet = results_prediction(real, pred_nnetFit)
-mr = results_prediction(real, pred_mrFit)
-rf = results_prediction(real, pred_rfFit)
-
-results = cbind(gbm,svm,nnet,mr,rf)
-
-final = rbind(acc_values,results)
-final
-unlist(final[1:10,1])
-
-
-
-plot(acc_gbmFit)
-plot(acc_gbmFit)
-plot(acc_gbmFit)
-plot(acc_gbmFit)
-plot(acc_gbmFit)
-plot(acc_values[,5])
 ######################################## TRAIN THE FINAL MODEL ON ALL DATA #############################
 
 
