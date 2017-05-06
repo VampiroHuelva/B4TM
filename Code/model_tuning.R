@@ -7,19 +7,17 @@
 
 # gbm https://topepo.github.io/caret/model-training-and-tuning.html#model-training-and-parameter-tuning
 # https://cran.r-project.org/web/packages/gbm/gbm.pdf
-# 
+# gbm was bugging
 gbm_tuning = function(x,features) {
   fitControl <- trainControl(method = "repeatedcv",
                              number = 10,
-                             repeats = 10,
-                             ## Estimate class probabilities
-                             classProbs = TRUE)
+                             repeats = 10)
 
   formula_model = paste(features, collapse=' + ')
   formula_model = paste("Subgroup ~ ", formula_model, collapse ='')
   
   gbmFit <- train(eval(parse(text=formula_model)), data = x, 
-                   method = "gbm", 
+                   method = 'lda',
                    trControl = fitControl, 
                    verbose = FALSE)
   return(gbmFit)
@@ -36,7 +34,7 @@ svm_tuning = function(x,features) {
   formula_model = paste("Subgroup ~ ", formula_model, collapse ='')
 
   svmFit <- train(eval(parse(text=formula_model)), data = x, 
-                method = "svmRadialWeights", 
+                method = "svmRadial", 
                 trControl = fitControl)
   return(svmFit)
 }
