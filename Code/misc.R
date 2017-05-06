@@ -5,6 +5,7 @@
 ############################################################################################
 
 load_depend = function() {
+  
   rm(list = ls())
   source("code/model_tuning.R")
   source("code/feature_selection.R")
@@ -16,6 +17,7 @@ load_depend = function() {
   library(dplyr); library(LiblineaR); library(kernlab)
   
   #write.arff(combine, file = "combine.arff")
+  
 }
 
 load_features = function() {
@@ -53,6 +55,7 @@ Load_Unlabeled_Data <- function(input){
 
 # load labeled data
 Load_labeled_Data = function() {
+  
   clinical <- read.delim("Data/Train_clinical.txt", header =TRUE, sep = "\t", quote = "\"", dec = ".", fill = TRUE, comment.char = "")
   call <- read.delim("Data/Train_call.txt", header =TRUE, sep = "\t", quote = "\"", dec = ".", fill = TRUE, comment.char = "")
   call = t(as.data.frame(call))
@@ -65,7 +68,9 @@ Load_labeled_Data = function() {
   levels(combine$Subgroup)[1]<-'HER2Plus'
   levels(combine$Subgroup)[2]<-'HRPlus'
   levels(combine$Subgroup)[3]<-'TripleNeg'
+  
   return(combine)
+  
 }
 
 # make train and test sets for double loop cross validation (workswith 3 classes)
@@ -91,6 +96,7 @@ double_crossval_datasets = function(combine, crossval, loops) {
   sets <- vector("list", loops)
   
   for (i in 1:loops) {
+    
     # extracting the testset
     test <- rbind(HER2plus[total_HE[[i]],],HRplus[total_HR[[i]],],TrNeg[total_Tr[[i]],])
     
@@ -106,7 +112,8 @@ double_crossval_datasets = function(combine, crossval, loops) {
     Tr_t <- cross(Tr_train,crossval)
     
     # saving all sets combinations
-    cross_sets <- vector("list",crossval)  
+    cross_sets <- vector("list",crossval) 
+    
     for (j in 1:crossval) {
       test_cross <- rbind(HER2plus[HE_t[[j]],],HRplus[HR_t[[j]],],TrNeg[Tr_t[[j]],])
       HE_tr = unlist(setdiff(HE_t,HE_t[j]))
@@ -118,10 +125,12 @@ double_crossval_datasets = function(combine, crossval, loops) {
     } 
     sets[[i]]<-list(cross_sets,test)
   }
+  
 }
 
 # make train and test sets for single loop cross validation (workswith 3 classes)
 crossval_sets = function(x, crossval) {
+  
   # group data by class
   HER2plus <-x[x$Subgroup=="HER2Plus",]
   HRplus <- x[x$Subgroup=="HRPlus",]
@@ -142,6 +151,7 @@ crossval_sets = function(x, crossval) {
   sets <- vector("list", crossval)
   
   if (crossval != 1) {
+    
     for (i in 1:crossval) {
       # extracting the testset
       test <- rbind(HER2plus[total_HE[[i]],],HRplus[total_HR[[i]],],TrNeg[total_Tr[[i]],])
@@ -155,8 +165,10 @@ crossval_sets = function(x, crossval) {
       
       #saving the sets
       sets[[i]]<-list(train,test)
-      }
+    }
+    
    } else {
+     
     sample_size = floor(0.75 * nrow(HER2plus))
     train_ind <- sample(seq_len(nrow(HER2plus)), size = sample_size)
     train_HER2 <- HER2plus[train_ind, ]
@@ -175,12 +187,15 @@ crossval_sets = function(x, crossval) {
     train <- rbind(train_HER2,train_HR,train_Tr)
     test <- rbind(test_HER2,test_HR,test_Tr)
     sets[[1]]<-list(train,test)
-  }
+   }
+  
   return(sets)
+  
 }
 
 # Make 3 sets all with two classes
 twoclasses = function(x) {
+  
   HER2 = x
   levels(HER2$Subgroup)[2]<-"NOHER2Plus"
   levels(HER2$Subgroup)[3]<-"NOHER2Plus"
@@ -193,11 +208,14 @@ twoclasses = function(x) {
   levels(Triple$Subgroup)[1]<-'NOTripleNeg'
   levels(Triple$Subgroup)[2]<-'NOTripleNeg'
   sets <- list(HER2,HR,Triple)
+  
   return(sets)
+  
 }
 
 #make the two classes datasets with classes of same proportions
 make_equal_sets = function(x,class) {
+  
   classes = levels(x$Subgroup)
   # check which is the longest
   # add duplicates to the lowerst group (double)
@@ -208,17 +226,22 @@ make_equal_sets = function(x,class) {
   } else {
     result = rbind(class1,class1,class2)
   }
-  return(result) 
+  
+  return(result)
+  
 }
 
 train_all_models = function(x, features){
+  
   gbmFit = gbm_tuning(x,features) 
   svmFit = svm_tuning(x,features)
   nnetFit = nnet_tuning(x,features)
   mrFit = mr_tuning(x,features)
   rfFit = rf_tuning(x,features)
   resamps <- resamples(list(GBM = gbmFit, SVM = svmFit, NNET = nnetFit, MR = mrFit, RF = rfFit))
+  
   return(list(gbmFit,svmFit,nnetFit,mrFit,rfFit,resamps))
+  
 }
 
 train_all_models_with_feature_selection = function(train_set,features) {
@@ -241,66 +264,106 @@ train_all_models_with_feature_selection = function(train_set,features) {
   rfFit = rf_tuning(train_set,rfFit_features)
   
   resamps <- resamples(list(GBM = gbmFit, SVM = svmFit, NNET = nnetFit, MR = mrFit, RF = rfFit))
+  
   return(list(gbmFit,svmFit,nnetFit,mrFit,rfFit,resamps))
+  
 }
 
-results_prediction = function(real, pred) {
-  total = sum(real == pred)
-  HER2 = sum(real[real==1] == pred[real==1])
-  HR = sum(real[real==2] == pred[real==2])
-  TRIPLE = sum(real[real==3] == pred[real==3])
-  return(list(total,HER2,HR,TRIPLE))
+results_prediction = function(pred) {
+  
+  gbm = c(pred$gbmFit == pred$real, pred$gbmFit[pred$real == 1] == pred$real[pred$real == 1],
+          pred$gbmFit[pred$real == 2] == pred$real[pred$real == 2],
+          pred$gbmFit[pred$real == 3] == pred$real[pred$real == 3])
+  
+  svm = c(pred$svmFit == pred$real, pred$svmFit[pred$real == 1] == pred$real[pred$real == 1],
+          pred$svmFit[pred$real == 2] == pred$real[pred$real == 2],
+          pred$svmFit[pred$real == 3] == pred$real[pred$real == 3])
+  
+  nnet = c(pred$nnetFit == pred$real, pred$nnetFit[pred$real == 1] == pred$real[pred$real == 1],
+          pred$nnetFit[pred$real == 2] == pred$real[pred$real == 2],
+          pred$nnetFit[pred$real == 3] == pred$real[pred$real == 3])
+  
+  mr = c(pred$mrFit == pred$real, pred$mrFit[pred$real == 1] == pred$real[pred$real == 1],
+          pred$mrFit[pred$real == 2] == pred$real[pred$real == 2],
+          pred$mrFit[pred$real == 3] == pred$real[pred$real == 3])
+  
+  rf = c(pred$rfFit == pred$real, pred$rfFit[pred$real == 1] == pred$real[pred$real == 1],
+          pred$rfFit[pred$real == 2] == pred$real[pred$real == 2],
+          pred$rfFit[pred$real == 3] == pred$real[pred$real == 3])
+
+  total = c(length(pred$real), sum(pred$real == 1), sum(pred$real == 2), sum(pred$real == 3))
+  results = data.frame(gbm, svm, nnet, mr, rf)
+  
+  return(results)
+  
 }
 
 save_models = function(models, models_trained) {
-  models[nrow(models)+1,] <- c(models_trained[[1]],
-                                models_trained[[2]],
-                                models_trained[[3]],
-                                models_trained[[4]],
-                                models_trained[[5]])
+
+  models[[length(models)+1]]  <- list(gbmFit = models_trained[[1]],
+                               svmFit = models_trained[[2]],
+                               nnetFit = models_trained[[3]],
+                               mrFit = models_trained[[4]],
+                               rfFit = models_trained[[5]])
+  
   return(models)
+  
 }
 
 save_pred =function(pred, models_trained, test_set) {
+
   temp = cbind(predict(gbmFit,test_set),
                predict(svmFit,test_set),
                predict(nnetFit,test_set),
                predict(mrFit,test_set),
                predict(rfFit,test_set),
                test_set$Subgroup)
+  temp
   for (i in 1:length(temp[,1])) {
-    red[nrow(pred)+i,] <- temp[i,]
+    pred[nrow(pred)+1,] <- temp[i,]
   }
+  pred
   return(pred)
+  
 }
 
 save_accur = function(accur, resample) {
+
   accur[nrow(accur)+1,] <- c(summary(resamps)$statistics$Accuracy[1,4],
                              summary(resamps)$statistics$Accuracy[2,4],
                              summary(resamps)$statistics$Accuracy[3,4],
                              summary(resamps)$statistics$Accuracy[4,4],
                              summary(resamps)$statistics$Accuracy[5,4])
+  
   return(accur)
+  
 }
 
 empty_accur = function() {
+  
   accur <- data.frame(x= numeric(0), y= numeric(0), z = numeric(0),
                       x= numeric(0), y= numeric(0))
   colnames(accur) <- c("gbmFit","vmFit","nnetFit","mrFit","rfFit")
+  
   return(accur)
+  
 }
 
 
-empty_accur = function() {
+empty_pred = function() {
+  
   pred <- data.frame(x= numeric(0), y= numeric(0), z = numeric(0),
                      x= numeric(0), y= numeric(0), z = numeric(0))
   colnames(pred) <- c("gbmFit","vmFit","nnetFit","mrFit","rfFit","real")
+  
   return(pred)
+  
 }
 
 empty_models = function() {
-  models <- data.frame(x= numeric(0), y= numeric(0), z = numeric(0),
-                      x= numeric(0), y= numeric(0))
-  colnames(models) <- c("gbmFit","vmFit","nnetFit","mrFit","rfFit")
+  
+  models <- vector("list", 5)
+  
   return(models)
+  
 }
