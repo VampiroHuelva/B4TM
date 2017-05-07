@@ -9,6 +9,7 @@
 # https://cran.r-project.org/web/packages/gbm/gbm.pdf
 # gbm was bugging
 gbm_tuning = function(x,features) {
+  
   fitControl <- trainControl(method = "repeatedcv",
                              number = 10,
                              repeats = 10)
@@ -20,7 +21,9 @@ gbm_tuning = function(x,features) {
                    method = 'lda',
                    trControl = fitControl, 
                    verbose = FALSE)
+  
   return(gbmFit)
+  
 }
 
 # svm
@@ -36,7 +39,9 @@ svm_tuning = function(x,features) {
   svmFit <- train(eval(parse(text=formula_model)), data = x, 
                 method = "svmRadial", 
                 trControl = fitControl)
+  
   return(svmFit)
+  
 }
 
 # nnet Neural Networks with Feature Extraction
@@ -57,7 +62,9 @@ nnet_tuning = function(x,features) {
                   trControl = fitControl, 
                   preProc = c("center", "scale"),
                   trace = FALSE)
+  
   return(nnetFIT)
+  
 }
 
 # Penalized Multinomial Regression https://topepo.github.io/caret/train-models-by-tag.html#l2-regularization
@@ -76,6 +83,7 @@ mr_tuning = function(x,features) {
                  method = "multinom", 
                  trControl = fitControl)
   return(mrFIT)
+  
 }
 
 # rt  
@@ -94,5 +102,6 @@ rf_tuning = function(x,features) {
                  method = "rf", 
                  trControl = fitControl)
   return(rfFIT)
+  
 }
 
