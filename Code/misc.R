@@ -271,28 +271,27 @@ train_all_models_with_feature_selection = function(train_set,features) {
 
 results_prediction = function(pred) {
   
-  gbm = c(pred$gbmFit == pred$real, pred$gbmFit[pred$real == 1] == pred$real[pred$real == 1],
-          pred$gbmFit[pred$real == 2] == pred$real[pred$real == 2],
-          pred$gbmFit[pred$real == 3] == pred$real[pred$real == 3])
+  gbm = c(sum(pred$gbmFit == pred$real), sum(pred$gbmFit[pred$real == 1] == pred$real[pred$real == 1]),
+          sum(pred$gbmFit[pred$real == 2] == pred$real[pred$real == 2]),
+          sum(pred$gbmFit[pred$real == 3] == pred$real[pred$real == 3]))
   
-  svm = c(pred$svmFit == pred$real, pred$svmFit[pred$real == 1] == pred$real[pred$real == 1],
-          pred$svmFit[pred$real == 2] == pred$real[pred$real == 2],
-          pred$svmFit[pred$real == 3] == pred$real[pred$real == 3])
+  svm = c(sum(pred$svmFit == pred$real), sum(pred$svmFit[pred$real == 1] == pred$real[pred$real == 1]),
+          sum(pred$svmFit[pred$real == 2] == pred$real[pred$real == 2]),
+          sum(pred$svmFit[pred$real == 3] == pred$real[pred$real == 3]))
   
-  nnet = c(pred$nnetFit == pred$real, pred$nnetFit[pred$real == 1] == pred$real[pred$real == 1],
-          pred$nnetFit[pred$real == 2] == pred$real[pred$real == 2],
-          pred$nnetFit[pred$real == 3] == pred$real[pred$real == 3])
+  nnet = c(sum(pred$nnetFit == pred$real), sum(pred$nnetFit[pred$real == 1] == pred$real[pred$real == 1]),
+         sum(pred$nnetFit[pred$real == 2] == pred$real[pred$real == 2]),
+         sum(pred$nnetFit[pred$real == 3] == pred$real[pred$real == 3]))
   
-  mr = c(pred$mrFit == pred$real, pred$mrFit[pred$real == 1] == pred$real[pred$real == 1],
-          pred$mrFit[pred$real == 2] == pred$real[pred$real == 2],
-          pred$mrFit[pred$real == 3] == pred$real[pred$real == 3])
+  mr = c(sum(pred$mrFit == pred$real), sum(pred$mrFit[pred$real == 1] == pred$real[pred$real == 1]),
+         sum(pred$mrFit[pred$real == 2] == pred$real[pred$real == 2]),
+         sum(pred$mrFit[pred$real == 3] == pred$real[pred$real == 3]))
   
-  rf = c(pred$rfFit == pred$real, pred$rfFit[pred$real == 1] == pred$real[pred$real == 1],
-          pred$rfFit[pred$real == 2] == pred$real[pred$real == 2],
-          pred$rfFit[pred$real == 3] == pred$real[pred$real == 3])
-
+  rf = c(sum(pred$rfFit == pred$real), sum(pred$rfFit[pred$real == 1] == pred$real[pred$real == 1]),
+         sum(pred$rfFit[pred$real == 2] == pred$real[pred$real == 2]),
+         sum(pred$rfFit[pred$real == 3] == pred$real[pred$real == 3]))
   total = c(length(pred$real), sum(pred$real == 1), sum(pred$real == 2), sum(pred$real == 3))
-  results = data.frame(gbm, svm, nnet, mr, rf)
+  results = data.frame(gbm, svm, nnet, mr, rf, total)
   
   return(results)
   
@@ -312,28 +311,26 @@ save_models = function(models, models_trained) {
 
 save_pred =function(pred, models_trained, test_set) {
 
-  temp = cbind(predict(gbmFit,test_set),
-               predict(svmFit,test_set),
-               predict(nnetFit,test_set),
-               predict(mrFit,test_set),
-               predict(rfFit,test_set),
+  temp = cbind(predict(models_trained[[1]],test_set),
+               predict(models_trained[[2]],test_set),
+               predict(models_trained[[3]],test_set),
+               predict(models_trained[[4]],test_set),
+               predict(models_trained[[5]],test_set),
                test_set$Subgroup)
-  temp
   for (i in 1:length(temp[,1])) {
     pred[nrow(pred)+1,] <- temp[i,]
   }
-  pred
   return(pred)
   
 }
 
 save_accur = function(accur, resample) {
 
-  accur[nrow(accur)+1,] <- c(summary(resamps)$statistics$Accuracy[1,4],
-                             summary(resamps)$statistics$Accuracy[2,4],
-                             summary(resamps)$statistics$Accuracy[3,4],
-                             summary(resamps)$statistics$Accuracy[4,4],
-                             summary(resamps)$statistics$Accuracy[5,4])
+  accur[nrow(accur)+1,] <- c(summary(resample)$statistics$Accuracy[1,4],
+                             summary(resample)$statistics$Accuracy[2,4],
+                             summary(resample)$statistics$Accuracy[3,4],
+                             summary(resample)$statistics$Accuracy[4,4],
+                             summary(resample)$statistics$Accuracy[5,4])
   
   return(accur)
   
@@ -343,7 +340,7 @@ empty_accur = function() {
   
   accur <- data.frame(x= numeric(0), y= numeric(0), z = numeric(0),
                       x= numeric(0), y= numeric(0))
-  colnames(accur) <- c("gbmFit","vmFit","nnetFit","mrFit","rfFit")
+  colnames(accur) <- c("gbmFit","svmFit","nnetFit","mrFit","rfFit")
   
   return(accur)
   
@@ -354,7 +351,7 @@ empty_pred = function() {
   
   pred <- data.frame(x= numeric(0), y= numeric(0), z = numeric(0),
                      x= numeric(0), y= numeric(0), z = numeric(0))
-  colnames(pred) <- c("gbmFit","vmFit","nnetFit","mrFit","rfFit","real")
+  colnames(pred) <- c("gbmFit","svmFit","nnetFit","mrFit","rfFit","real")
   
   return(pred)
   
@@ -365,5 +362,17 @@ empty_models = function() {
   models <- vector("list", 5)
   
   return(models)
+  
+}
+
+plot_results = function(accur, results) {
+  
+  par(mfrow=c(2,2))
+  main=1
+  boxplot(accur,xlab='models', ylab='accuracy')
+  boxplot(t(accur),xlab='cross validations', ylab='accuracy')
+  boxplot(t(results[,1:5]),xlab='average predictions', ylab='correct')
+  boxplot(results,xlab='models', ylab='correct')
+  par(mfrow=c(1,1))
   
 }
