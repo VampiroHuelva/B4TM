@@ -5,7 +5,7 @@
 ### cancer types. First the data is read in to perform a data inspection.... TODO FINISH  
 ### .....
 ### 
-### Dependecies: misc.R and model_tuning.R
+### Dependecies: misc.R, feature_selection.R and model_tuning.R
 ### input: Train_call.txt, Train_clinical.txt andunlabelled_sample.txt
 ### output: .... models
 ###
@@ -69,7 +69,7 @@ summary(results_Triple)[3]$statistics$Accuracy
 
 accur = empty_accur()
 pred = empty_pred()
-models = empty_models()
+models = list()
 
 # feature selection before training
 for (j in 1:crossval) {
@@ -102,7 +102,7 @@ for (j in 1:crossval) {
 features = CorrelationAttribute
 accur = empty_accur()
 pred = empty_pred()
-models = empty_models()
+models = list()
 
 # feature selection on each crossval
 for (j in 1:crossval) {
@@ -126,23 +126,42 @@ for (j in 1:crossval) {
 }
 
 
-##################### NOW we can compare the models with different feature selection ###################
+##################### visualize the preformance of the models ##############################
 
-accur
-pred
+
 models
 results = results_prediction(pred)
+plot_results(accur, results)
+
+
+######################################## Check of it is significant different #########################
+
+
+# non paired test
+m = mean(accur$rfFit)
+s = sd(accur$rfFit)
+t.test(accur$mrFit, mu=m)
+
+# paired
+mr = accur$mrFit
+rf = accur$rfFit
+t.test(mr,rf,paired = TRUE, var.equal = FALSE)
 
 
 ######################################## TRAIN THE FINAL MODEL ON ALL DATA #############################
 
 
+rfFit = rf_tuning(train_set,features)
+rfFit_features = feature_var_imp(rfFit,10)
+final_model = rf_tuning(combine, rfFit_features)
+
+# testing on the trainset 
+predfinal = predict(final_model,combine)
+sum(predfinal==combine$Subgroup)
 
 #################################### DO THE FINAL PREDICTIONS ##########################################
 
-
-save(MODEL, file= "model.pkl")
-Model <- NNET_Model(final_model)
+save(final_model, file= "final_model.pkl")
 Unlabelled_data <- Load_Unlabeled_Data("Data/unlabelled_sample.txt")
-pred = predict(MODEL,Unlabelled_data)
+pred = predict(final_model,Unlabelled_data)
 pred
