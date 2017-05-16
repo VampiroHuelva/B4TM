@@ -15,6 +15,7 @@
 
 # clear environment and load source files
 source("code/misc.R")
+
 load_depend()
 
 # get the train data and write to WEKA file
@@ -22,9 +23,11 @@ combine = Load_labeled_Data()
 
 ################################## FEATURE SELECTION ####################################
 
+
 # load: features, features_rfe, CorrelationAttribute, J48_previous. Huge_combination and
 # Huge_Unic
 load_features()
+
 
 ############################### GENERATING TEST/TRAIN SETS ###############################
 
@@ -45,19 +48,52 @@ HR = make_equal_sets(two_class_data[[2]])
 Triple = make_equal_sets(two_class_data[[3]])
 
 
-############################## TRAINING MODELS ON TWO CLASSES(deleting the other) ##########
+############################## TRAINING MODELS ON TWO CLASSES (deleting the other) #########
 
 
 # datasets
-HER2HR = combine[combine$Subgroup == "HER2plus"| combine$Subgroup == "HRPlus",]
-HERTRIPLE = combine[combine$Subgroup == "HER2plus"| combine$Subgroup == "TripleNeg",]
-HRTRIPLE = combine[combine$Subgroup == "HRPlus"| combine$Subgroup == "TripleNeg",]
+HER2HR = combine[combine$Subgroup != "TripleNeg", ]
+HER2HR["Subgroup"] = droplevels(HER2HR$Subgroup)
+HERTRIPLE = combine[combine$Subgroup != "HRPlus",]
+HERTRIPLE["Subgroup"] = droplevels(HERTRIPLE$Subgroup)
+HRTRIPLE = combine[combine$Subgroup != "HER2Plus",]
+HRTRIPLE["Subgroup"] = droplevels(HRTRIPLE$Subgroup)
 
-# do here feature selection
+HER2HR_sets = crossval_sets2(HER2HR,crossval)
+HERTRIPLE_sets = crossval_sets2(HERTRIPLE,crossval)
+HRTRIPLE_sets = crossval_sets2(HRTRIPLE,crossval)
 
-# todo make equal trainsets/testsets
+accur = empty_accur()
+pred = empty_pred()
+models = list()
 
-############################## TRAINING MODELS ON TWO CLASSES ##############################
+group = HER2HR_sets
+# feature selection before training
+for (j in 1:crossval) {
+  
+  # data and feature selection
+  train_set = group[[j]][[1]]
+  test_set = group[[j]][[2]]
+  #features = filter_Var_selection(train_set,10)
+  features = CorrelationAttribute
+  
+  # train the models and store on the trainset (feature selection before on whole set)
+  models_trained = train_all_models_with_feature_selection(train_set,features)
+  
+  # saving all the models
+  models = save_models(models, models_trained)
+  
+  # saving all the accuracies of the models
+  accur = save_accur(accur, models_trained[[6]])
+  
+  # save predictions
+  pred = save_pred(pred,models_trained, test_set) 
+  
+}
+
+
+
+############################## TRAINING MODELS ON TWO CLASSES (renaming another class) #####
 
 
 # train models for two class sets (HER2 and NOHER), (HR and NOHR) and (Triple and NOTriple)

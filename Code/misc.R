@@ -193,6 +193,62 @@ crossval_sets = function(x, crossval) {
   
 }
 
+# make train and test sets for single loop cross validation (workswith 2 classes)
+crossval_sets2 = function(x, crossval) {
+  
+  # group data by class
+  c1 <-x[x$Subgroup==levels(x$Subgroup)[1],]
+  c2 <- x[x$Subgroup==levels(x$Subgroup)[2],]
+
+  cross <- function(y,n) split(y, factor(sort(rank(y)%%n)))
+  
+  # randomize in the groups
+  c1ran <- sample(1:length(c1[,1]),replace = F)
+  c2ran <- sample(1:length(c2[,1]),replace = F)
+
+  # divide in n testsets
+  total_c1ran = cross(c1ran,crossval)
+  total_c2ran = cross(c2ran,crossval)
+
+  sets <- vector("list", crossval)
+
+  if (crossval != 1) {
+    
+    for (i in 1:crossval) {
+      # extracting the testset
+      test <- rbind(c1[total_c1ran[[i]],],c2[total_c2ran[[i]],])
+      
+      # extracting the trainset 
+      c1ran_t = unlist(setdiff(total_c1ran,total_c1ran[[i]]))
+      c2ran_t = unlist(setdiff(total_c2ran,total_c2ran[[i]]))
+
+      train = rbind(c1[c1ran_t,],c2[c2ran_t,])
+      
+      #saving the sets
+      sets[[i]]<-list(train,test)
+    }
+    
+  } else {
+    
+    sample_size = floor(0.75 * nrow(c1))
+    train_ind <- sample(seq_len(nrow(c1)), size = sample_size)
+    train_c1 <- c1[train_ind, ]
+    test_c1 <- c1[-train_ind, ]
+    
+    sample_size = floor(0.75 * nrow(c2))
+    train_ind <- sample(seq_len(nrow(c2)), size = sample_size)
+    train_c2 <- c2[train_ind, ]
+    test_c2 <- c2[-train_ind, ]
+
+    train <- rbind(train_c1,train_c2)
+    test <- rbind(test_c1,test_c2)
+    sets[[1]]<-list(train,test)
+  }
+  
+  return(sets)
+  
+}
+
 # Make 3 sets all with two classes
 twoclasses = function(x) {
   
@@ -257,10 +313,14 @@ train_all_models_with_feature_selection = function(train_set,features) {
   
   mrFit = mr_tuning(train_set,features)
   mrFit_features = feature_var_imp(mrFit,10)
+  print("mrFit")
+  print(mrFit_features)
   mrFit = mr_tuning(train_set,mrFit_features) 
   
   rfFit = rf_tuning(train_set,features)
   rfFit_features = feature_var_imp(rfFit,10)
+  print("rfFit")
+  print(rfFit_features)
   rfFit = rf_tuning(train_set,rfFit_features)
   
   resamps <- resamples(list(GBM = gbmFit, SVM = svmFit, NNET = nnetFit, MR = mrFit, RF = rfFit))
