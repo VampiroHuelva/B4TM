@@ -63,10 +63,15 @@ HER2HR_sets = crossval_sets2(HER2HR,crossval)
 HERTRIPLE_sets = crossval_sets2(HERTRIPLE,crossval)
 HRTRIPLE_sets = crossval_sets2(HRTRIPLE,crossval)
 
+write.arff(HER2HR, file = "HER2HR.arff")
+write.arff(HERTRIPLE, file = "HERTRIPLE.arff")
+write.arff(HRTRIPLE, file = "HRTRIPLE.arff")
+
 accur = empty_accur()
 pred = empty_pred()
 models = list()
 
+# sink('analysis_HER2HER_features.txt')
 group = HER2HR_sets
 # feature selection before training
 for (j in 1:crossval) {

@@ -313,8 +313,6 @@ train_all_models_with_feature_selection = function(train_set,features) {
   
   mrFit = mr_tuning(train_set,features)
   mrFit_features = feature_var_imp(mrFit,10)
-  print("mrFit")
-  print(mrFit_features)
   mrFit = mr_tuning(train_set,mrFit_features) 
   
   rfFit = rf_tuning(train_set,features)

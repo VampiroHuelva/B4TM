@@ -18,7 +18,7 @@ gbm_tuning = function(x,features) {
   formula_model = paste("Subgroup ~ ", formula_model, collapse ='')
   
   gbmFit <- train(eval(parse(text=formula_model)), data = x, 
-                   method = 'lda',
+                   method = 'nb',
                    trControl = fitControl, 
                    verbose = FALSE)
   
