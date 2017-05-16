@@ -45,6 +45,18 @@ HR = make_equal_sets(two_class_data[[2]])
 Triple = make_equal_sets(two_class_data[[3]])
 
 
+############################## TRAINING MODELS ON TWO CLASSES(deleting the other) ##########
+
+
+# datasets
+HER2HR = combine[combine$Subgroup == "HER2plus"| combine$Subgroup == "HRPlus",]
+HERTRIPLE = combine[combine$Subgroup == "HER2plus"| combine$Subgroup == "TripleNeg",]
+HRTRIPLE = combine[combine$Subgroup == "HRPlus"| combine$Subgroup == "TripleNeg",]
+
+# do here feature selection
+
+# todo make equal trainsets/testsets
+
 ############################## TRAINING MODELS ON TWO CLASSES ##############################
 
 
