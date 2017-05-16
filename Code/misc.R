@@ -302,23 +302,20 @@ train_all_models = function(x, features){
 
 train_all_models_with_feature_selection = function(train_set,features) {
   
-  # do some feature selection that is woring???
+  gbmFit = mr_tuning(train_set,features)
+  gbmFit_features = feature_var_imp(gbmFit, 10)
   gbmFit = gbm_tuning(train_set,features)
   
-  # do some feature selection that is woring???
   svmFit = svm_tuning(train_set,features)
   
-  # do some feature selection that is woring???
   nnetFit = nnet_tuning(train_set,features)
   
   mrFit = mr_tuning(train_set,features)
-  mrFit_features = feature_var_imp(mrFit,10)
+  mrFit_features = feature_var_imp(mrFit, 10)
   mrFit = mr_tuning(train_set,mrFit_features) 
   
   rfFit = rf_tuning(train_set,features)
-  rfFit_features = feature_var_imp(rfFit,10)
-  print("rfFit")
-  print(rfFit_features)
+  rfFit_features = feature_var_imp(rfFit, 10)
   rfFit = rf_tuning(train_set,rfFit_features)
   
   resamps <- resamples(list(GBM = gbmFit, SVM = svmFit, NNET = nnetFit, MR = mrFit, RF = rfFit))
@@ -430,7 +427,9 @@ plot_results = function(accur, results) {
   boxplot(accur,xlab='models', ylab='accuracy')
   boxplot(t(accur),xlab='cross validations', ylab='accuracy')
   boxplot(t(results[,1:5]),xlab='average predictions', ylab='correct')
-  boxplot(results,xlab='models', ylab='correct')
+  coll = rainbow(5)
+  plot(0,0, xlim = c(0,10), ylim = c(0.7,1))
+  for ( i in seq(1,length( accur ),1) ) lines(accur[,i],ylab=names(accur[i]),type="l", col = coll[i])
   par(mfrow=c(1,1))
-  
+  legend("bottomright",legend=colnames(accur),col=rainbow(5),pch=1)
 }

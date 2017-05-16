@@ -63,9 +63,9 @@ HER2HR_sets = crossval_sets2(HER2HR,crossval)
 HERTRIPLE_sets = crossval_sets2(HERTRIPLE,crossval)
 HRTRIPLE_sets = crossval_sets2(HRTRIPLE,crossval)
 
-write.arff(HER2HR, file = "HER2HR.arff")
-write.arff(HERTRIPLE, file = "HERTRIPLE.arff")
-write.arff(HRTRIPLE, file = "HRTRIPLE.arff")
+#write.arff(HER2HR, file = "HER2HR.arff")
+#write.arff(HERTRIPLE, file = "HERTRIPLE.arff")
+#write.arff(HRTRIPLE, file = "HRTRIPLE.arff")
 
 accur = empty_accur()
 pred = empty_pred()
@@ -95,7 +95,6 @@ for (j in 1:crossval) {
   pred = save_pred(pred,models_trained, test_set) 
   
 }
-
 
 
 ############################## TRAINING MODELS ON TWO CLASSES (renaming another class) #####
@@ -181,7 +180,7 @@ for (j in 1:crossval) {
 
 ##################### visualize the preformance of the models ##############################
 
-
+source("code/misc.R")
 models
 results = results_prediction(pred)
 plot_results(accur, results)
