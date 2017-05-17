@@ -14,6 +14,7 @@
 ########################################################################################
 
 # clear environment and load source files
+rm(list = ls())
 source("code/misc.R")
 
 load_depend()
@@ -25,8 +26,7 @@ combine = Load_labeled_Data()
 
 
 # load: features, features_rfe, CorrelationAttribute, J48_previous. Huge_combination and
-# Huge_Unic
-load_features()
+Huge_Unic
 
 
 ############################### GENERATING TEST/TRAIN SETS ###############################
@@ -48,7 +48,7 @@ HR = make_equal_sets(two_class_data[[2]])
 Triple = make_equal_sets(two_class_data[[3]])
 
 
-############################## TRAINING MODELS ON TWO CLASSES (deleting the other) #########
+############################## TWO CLASSES (deleting the other) #########
 
 
 # datasets
@@ -67,6 +67,10 @@ HRTRIPLE_sets = crossval_sets2(HRTRIPLE,crossval)
 #write.arff(HERTRIPLE, file = "HERTRIPLE.arff")
 #write.arff(HRTRIPLE, file = "HRTRIPLE.arff")
 
+
+############################## MODEL 1. 3 classes --> HR - TRIPLE #########
+
+
 accur = empty_accur()
 pred = empty_pred()
 models = list()
@@ -83,11 +87,67 @@ for (j in 1:crossval) {
   train_set = simple_cross_sets[[j]][[1]]
   test_set = simple_cross_sets[[j]][[2]]
 
+  train_two_class_data = twoclasses(train_set)[[3]]
+  train_two_class_data <- make_equal_sets(train_two_class_data)
+  
+  test_two_class_data = twoclasses(test_set)[[3]]
+  test_two_class_data <- make_equal_sets(test_two_class_data)
+  
   train_set2 = train_set[train_set$Subgroup != "HER2Plus",]
   train_set2["Subgroup"] = droplevels(train_set2$Subgroup)  
   test_set2 = train_set[test_set$Subgroup != "HER2Plus",]
   test_set2["Subgroup"] = droplevels(test_set2$Subgroup)     
     
+  #features = filter_Var_selection(train_set,10)
+  features = HERHR_TRIPLE_J48
+  features2 = HRTR_features
+  
+  # train the models and store on the trainset (feature selection before on whole set)
+  models_trained = train_all_models_with_feature_selection(train_set,features)
+  models_trained2 = train_all_models_with_feature_selection(train_set2,features2)
+  
+  
+  # saving all the models
+  models = save_models(models, models_trained)
+  models2 = save_models(models2, models_trained2)
+  
+  # saving all the accuracies of the models
+  accur = save_accur(accur, models_trained[[6]])
+  accur2 = save_accur(accur2, models_trained2[[6]])
+  
+  # save predictions
+  pred = save_pred(pred,models_trained, test_set)
+  pred2 = save_pred(pred2,models_trained2, test_set2)
+  
+}
+
+
+############################## MODEL 2. 2 CLASSES --> TRIPLE vs NO TRIPLE #########
+
+
+
+
+accur = empty_accur()
+pred = empty_pred()
+models = list()
+
+accur2 = empty_accur()
+pred2 = empty_pred()
+models2 = list()
+# sink('analysis_HER2HER_features.txt')
+
+# feature selection before training
+for (j in 1:crossval) {
+  
+  # data and feature selection
+  train_set = simple_cross_sets[[j]][[1]]
+  test_set = simple_cross_sets[[j]][[2]]
+  
+  train_set2 = train_set[train_set$Subgroup != "HER2Plus",]
+  train_set2["Subgroup"] = droplevels(train_set2$Subgroup)  
+  test_set2 = train_set[test_set$Subgroup != "HER2Plus",]
+  test_set2["Subgroup"] = droplevels(test_set2$Subgroup)     
+  
   #features = filter_Var_selection(train_set,10)
   features = Huge_Unic
   features2 = HRTR_features
@@ -110,6 +170,9 @@ for (j in 1:crossval) {
   pred2 = save_pred(pred2,models_trained2, test_set2)
   
 }
+
+
+
 
 
 ############################## TRAINING MODELS ON TWO CLASSES (renaming another class) #####
