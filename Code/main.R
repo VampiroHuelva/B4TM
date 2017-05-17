@@ -71,28 +71,44 @@ accur = empty_accur()
 pred = empty_pred()
 models = list()
 
+accur2 = empty_accur()
+pred2 = empty_pred()
+models2 = list()
 # sink('analysis_HER2HER_features.txt')
-group = HER2HR_sets
+
 # feature selection before training
 for (j in 1:crossval) {
   
   # data and feature selection
-  train_set = group[[j]][[1]]
-  test_set = group[[j]][[2]]
+  train_set = simple_cross_sets[[j]][[1]]
+  test_set = simple_cross_sets[[j]][[2]]
+  
+  train_set2 = train_set[train_set$Subgroup != "HER2Plus",]
+  train_set2["Subgroup"] = droplevels(train_set$Subgroup)  
+
+  test_set2 = train_set[test_set$Subgroup != "HER2Plus",]
+  test_set2["Subgroup"] = droplevels(test_set$Subgroup)     
+    
   #features = filter_Var_selection(train_set,10)
-  features = CorrelationAttribute
+  features = Huge_Unic
+  features2 = HRTR_features
   
   # train the models and store on the trainset (feature selection before on whole set)
   models_trained = train_all_models_with_feature_selection(train_set,features)
+  models_trained2 = train_all_models_with_feature_selection(train_set2,features2)
+  
   
   # saving all the models
   models = save_models(models, models_trained)
+  models2 = save_models(models2, models_trained2)
   
   # saving all the accuracies of the models
   accur = save_accur(accur, models_trained[[6]])
+  accur2 = save_accur(accur2, models_trained2[[6]])
   
   # save predictions
-  pred = save_pred(pred,models_trained, test_set) 
+  pred = save_pred(pred,models_trained, test_set)
+  pred2 = save_pred(pred2,models_trained2, test_set2)
   
 }
 
