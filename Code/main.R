@@ -82,12 +82,11 @@ for (j in 1:crossval) {
   # data and feature selection
   train_set = simple_cross_sets[[j]][[1]]
   test_set = simple_cross_sets[[j]][[2]]
-  
-  train_set2 = train_set[train_set$Subgroup != "HER2Plus",]
-  train_set2["Subgroup"] = droplevels(train_set$Subgroup)  
 
+  train_set2 = train_set[train_set$Subgroup != "HER2Plus",]
+  train_set2["Subgroup"] = droplevels(train_set2$Subgroup)  
   test_set2 = train_set[test_set$Subgroup != "HER2Plus",]
-  test_set2["Subgroup"] = droplevels(test_set$Subgroup)     
+  test_set2["Subgroup"] = droplevels(test_set2$Subgroup)     
     
   #features = filter_Var_selection(train_set,10)
   features = Huge_Unic
