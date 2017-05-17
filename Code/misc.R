@@ -6,7 +6,6 @@
 
 load_depend = function() {
   
-  rm(list = ls())
   source("code/model_tuning.R")
   source("code/feature_selection.R")
   

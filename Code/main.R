@@ -85,9 +85,8 @@ for (j in 1:crossval) {
 
   train_set2 = train_set[train_set$Subgroup != "HER2Plus",]
   train_set2["Subgroup"] = droplevels(train_set2$Subgroup)  
-  test_set2 = train_set[test_set$Subgroup != "HER2Plus",]
-  test_set2["Subgroup"] = droplevels(test_set2$Subgroup)     
-    
+  test_set2 = test_set
+
   #features = filter_Var_selection(train_set,10)
   features = Huge_Unic
   features2 = HRTR_features
@@ -195,12 +194,12 @@ for (j in 1:crossval) {
 
 ##################### visualize the preformance of the models ##############################
 
-source("code/misc.R")
 models
 results = results_prediction(pred)
 plot_results(accur, results)
-
-
+results
+pred
+pred2
 ######################################## Check of it is significant different #########################
 
 
